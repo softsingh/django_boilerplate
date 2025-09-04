@@ -1,0 +1,31 @@
+{% extends "_base.html" %}
+{% load static %}
+{% block title %}
+    Index
+{% endblock title %}
+{% block content %}
+    <div class="container-fluid">
+        <header>
+            <nav class="landing-navbar">
+                <div class="nav-left">
+                    <a href="{% url "index" %}" class="nav-logo">
+                        <img src="{% static 'assets/img/logo.png' %}"
+                             alt="Logo"
+                             class="logo-image">
+                        <h5 class="logo-text">{{ PROJECT_NAME_SHORT }}</h5>
+                    </a>
+                </div>
+                {% if user.is_authenticated %}
+                    {% include "user/includes/_user_account_dropdown.html" with logout_next_url="index" %}
+                {% else %}
+                    <div class="nav-right">
+                        {% if PUBLIC_REGISTRATION %}
+                            <a href="{% url "user_register" %}" class="btn btn-secondary">Register</a>
+                        {% endif %}
+                        <a href="{% url "user_login" %}" class="btn btn-primary">Login</a>
+                    </div>
+                {% endif %}
+            </nav>
+        </header>
+    </div>
+{% endblock content %}

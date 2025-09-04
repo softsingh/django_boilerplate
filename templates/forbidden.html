@@ -1,0 +1,33 @@
+{% extends "_base.html" %}
+{% load static %}
+{% block htmlclass %}
+   h-100
+{% endblock htmlclass %}
+{% block title %}
+   Forbidden
+{% endblock title %}
+{% block bodyclass %}
+   h-100
+{% endblock bodyclass %}
+{% block content %}
+   <div class="mid-center-container">
+      <div class="mid-center-inner">
+         <div class="text-center">
+            <h1 class="fs-24 lh-22 mb-3">403</h1>
+            <h4 class="mb-2">Forbidden</h4>
+            <p class="mb-8">
+               {% if message %}
+                  {{ message }}
+               {% else %}
+                  You don't have permission to access this page!
+               {% endif %}
+            </p>
+            {% if referer %}
+               <a href="{{ referer }}" class="btn btn-warning">Go Back</a>
+            {% else %}
+               <a href="{% url "index" %}" class="btn btn-warning">Go Home</a>
+            {% endif %}
+         </div>
+      </div>
+   </div>
+{% endblock content %}

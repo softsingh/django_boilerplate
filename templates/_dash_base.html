@@ -1,0 +1,229 @@
+{% load static %}
+{% load common_tags %}
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <meta charset="UTF-8">
+      <meta name="description" content="Django Boilerplate">
+      <meta name="keywords" content="Django, Boilerplate">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>
+         {% block title %}
+         {% endblock title %}
+      </title>
+      <link rel="stylesheet" href="{% static 'assets/css/core.css' %}">
+      <link rel="stylesheet" href="{% static 'assets/css/style.css' %}">
+      <link rel="stylesheet"
+            href="{% static 'assets/vendor/boxicons-2.1.4/css/boxicons.min.css' %}">
+      <link rel="shortcut icon" href="{% static 'favicon.ico' %}" />
+      {% block head_link %}
+      {% endblock head_link %}
+   </head>
+   <body>
+      <div class="dash-container">
+         <div class="sidebar-backdrop"></div>
+         {% url 'dashboard' as dashboard_url %}
+         {% url 'user_list' as user_list_url %}
+         {% url 'user_add' as user_add_url %}
+         {% url 'user_group_list' as user_group_list_url %}
+         {% url 'user_group_add' as user_group_add_url %}
+         <aside class="sidebar">
+            <div class="app-brand">
+               <a href="{% url "index" %}" class="app-logo">
+                  <img src="{% static 'assets/img/logo.png' %}"
+                       alt="Logo"
+                       class="logo-image">
+                  <h6 class="logo-text">{{ PROJECT_NAME_SHORT }}</h6>
+               </a>
+               <a href="#" class="sidebar-toggle" data-toggle="sidebar">
+                  <i class="bx bx-chevron-left fs-5"></i>
+               </a>
+            </div>
+            <div class="menu">
+               <div class="menu-item {% if request.path == dashboard_url %}active{% endif %}">
+                  <a href="{% url 'dashboard' %}" class="menu-link">
+                     <i class="bx bx-home fs-6"></i>
+                     <span>Dashboard</span>
+                  </a>
+               </div>
+               <div class="menu-header">
+                  <small class="menu-header-text">Users & Groups</small>
+               </div>
+               <div class="menu-item {% if request.path == user_list_url or request.path == user_add_url %}active open{% endif %}">
+                  <a href="#" class="menu-link menu-toggle">
+                     <i class="bx bx-user fs-6"></i>
+                     <span>User</span>
+                  </a>
+                  <div class="menu-sub">
+                     <div class="menu-item {% if request.path == user_list_url %}active{% endif %}">
+                        <a href="{% url 'user_list' %}" class="menu-link">
+                           <i class="bx bx-detail fs-6"></i>
+                           <span>User List</span>
+                        </a>
+                     </div>
+                     <div class="menu-item {% if request.path == user_add_url %}active{% endif %}">
+                        <a href="{% url 'user_add' %}" class="menu-link">
+                           <i class="bx bx-detail fs-6"></i>
+                           <span>Add User</span>
+                        </a>
+                     </div>
+                  </div>
+               </div>
+               <div class="menu-item {% if request.path == user_group_list_url or request.path == user_group_add_url %}active open{% endif %}">
+                  <a href="#" class="menu-link menu-toggle">
+                     <i class="bx bx-grid-alt fs-6"></i>
+                     <span>Group</span>
+                  </a>
+                  <div class="menu-sub">
+                     <div class="menu-item {% if request.path == user_group_list_url %}active{% endif %}">
+                        <a href="{% url 'user_group_list' %}" class="menu-link">
+                           <i class="bx bx-detail fs-6"></i>
+                           <span>Group List</span>
+                        </a>
+                     </div>
+                     <div class="menu-item {% if request.path == user_group_add_url %}active{% endif %}">
+                        <a href="{% url 'user_group_add' %}" class="menu-link">
+                           <i class="bx bx-detail fs-6"></i>
+                           <span>Add Group</span>
+                        </a>
+                     </div>
+                  </div>
+               </div>
+               <div class="menu-header">
+                  <small class="menu-header-text">Header-1</small>
+               </div>
+               <div class="menu-item">
+                  <a href="#" class="menu-link menu-toggle">
+                     <i class="bx bx-layout fs-6"></i>
+                     <span>Item-1</span>
+                  </a>
+                  <div class="menu-sub">
+                     <div class="menu-item">
+                        <a href="#" class="menu-link">
+                           <span>Sub Item-1</span>
+                        </a>
+                     </div>
+                     <div class="menu-item">
+                        <a href="#" class="menu-link">
+                           <span>Sub Item-2</span>
+                        </a>
+                     </div>
+                  </div>
+               </div>
+               <div class="menu-item">
+                  <a href="#" class="menu-link menu-toggle">
+                     <i class="bx bx-lock fs-6"></i>
+                     <span>Item-2</span>
+                  </a>
+                  <div class="menu-sub">
+                     <div class="menu-item">
+                        <a href="#" class="menu-link">
+                           <span>Sub Item-1</span>
+                        </a>
+                     </div>
+                     <div class="menu-item">
+                        <a href="#" class="menu-link">
+                           <span>Sub Item-2</span>
+                        </a>
+                     </div>
+                  </div>
+               </div>
+               <div class="menu-header">
+                  <small class="menu-header-text">Header-2</small>
+               </div>
+               <div class="menu-item">
+                  <a href="#" class="menu-link menu-toggle">
+                     <i class="bx bx-rectangle fs-6"></i>
+                     <span>Item-1</span>
+                  </a>
+                  <div class="menu-sub">
+                     <div class="menu-item">
+                        <a href="#" class="menu-link">
+                           <span>Sub Item-1</span>
+                        </a>
+                     </div>
+                     <div class="menu-item">
+                        <a href="#" class="menu-link">
+                           <span>Sub Item-2</span>
+                        </a>
+                     </div>
+                  </div>
+               </div>
+               <div class="menu-item">
+                  <a href="#" class="menu-link menu-toggle">
+                     <i class="bx bx-copy fs-6"></i>
+                     <span>Item-2</span>
+                  </a>
+                  <div class="menu-sub">
+                     <div class="menu-item">
+                        <a href="#" class="menu-link">
+                           <span>Sub Item-1</span>
+                        </a>
+                     </div>
+                     <div class="menu-item">
+                        <a href="#" class="menu-link">
+                           <span>Sub Item-2</span>
+                        </a>
+                     </div>
+                  </div>
+               </div>
+            </div>
+         </aside>
+         <main class="main-layout">
+            <nav class="navbar mx-6">
+               <div class="navbar-nav nav-left">
+                  <div class="sidebar-toggle" data-toggle="sidebar">
+                     <a href="#" class="nav-link">
+                        <i class="bx bx-menu bx-sm cursor-pointer"></i>
+                     </a>
+                  </div>
+                  <a href="#" class="nav-link command-palette-button">
+                     <i class="bx bx-search bx-sm mt-1"></i>
+                     <span class="ms-3 d-none d-sm-block">Search (Ctrl + \)</span>
+                  </a>
+               </div>
+               <div class="navbar-nav nav-right">
+                  <div class="theme-toggle">
+                     <a href="#" class="nav-link">
+                        <i class="bx bx-moon fs-5 cursor-pointer"></i>
+                     </a>
+                  </div>
+                  {% include "user/includes/_user_account_dropdown.html" %}
+               </div>
+               <div class="command-palette-input-wrapper">
+                  <span class="command-palette-input-cover">
+                     <input type="text"
+                            placeholder="Search ......."
+                            class="form-control command-palette-input ps-6 border-0">
+                  </span>
+                  <i class="bx bx-x bx-sm command-palette-closer cursor-pointer"></i>
+               </div>
+               <div class="command-palette-result">
+                  <div class="command-palette-result-header">
+                     <h6 class="fs-4">Results</h6>
+                     <span class="command-palette-result-count text-muted"></span>
+                  </div>
+                  <div class="command-palette-result-list"></div>
+               </div>
+            </nav>
+            <div class="dash-content">
+               {% block content %}
+               {% endblock content %}
+               <footer>
+                  <div class="mt-6">
+                     <p class="text-muted text-center">
+                        © {{ CURRENT_YEAR }}. Theme powered by <a href="https://github.com/softsingh/vanilla-admin" target="_blank">Vanilla Admin</a>
+                     </p>
+                  </div>
+               </footer>
+            </div>
+         </main>
+      </div>
+      <script src="{% static 'assets/js/core.js' %}"></script>
+      <script src="{% static 'assets/js/script.js' %}"></script>
+      <script src="{% static 'assets/js/command-palette.js' %}"
+              data-json="/dashboard/links/"></script>
+      {% block bottom_link %}
+      {% endblock bottom_link %}
+   </body>
+</html>

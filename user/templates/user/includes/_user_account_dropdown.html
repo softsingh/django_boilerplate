@@ -1,0 +1,51 @@
+{% url 'index' as index_url %}
+<div class="dropdown">
+   <a class="dropdown-toggle">{% include "user/includes/_avatar.html" with userobj=user %}</a>
+   <div id="dropdown-menu-account" class="dropdown-menu dropdown-menu-end">
+      <a class="dropdown-item" href="{% url 'user_view_self' %}">
+         <div class="d-flex">
+            <div class="me-3">{% include "user/includes/_avatar.html" with userobj=user %}</div>
+            <div>
+               <h6 class="fs-4 mb-0">{{ user.full_name }}</h6>
+               <small class="text-muted">{% include "user/includes/_role.html" with userobj=user %}</small>
+            </div>
+         </div>
+      </a>
+      <div class="dropdown-divider"></div>
+      {% if request.path == index_url %}
+         <a href="{% url 'dashboard' %}" class="dropdown-item">
+            <div class="d-flex align-items-cemter gap-3">
+               <i class="bx bx-user fs-5"></i>
+               <span>Dashboard</span>
+            </div>
+         </a>
+      {% else %}
+         <a href="{% url 'user_edit_self' %}" class="dropdown-item">
+            <div class="d-flex align-items-cemter gap-3">
+               <i class="bx bx-user fs-5"></i>
+               <span>Profile</span>
+            </div>
+         </a>
+      {% endif %}
+      <a href="{% url 'settings' %}" class="dropdown-item">
+         <div class="d-flex align-items-cemter gap-3">
+            <i class="bx bx-cog fs-5"></i>
+            <span>Settings</span>
+         </div>
+      </a>
+      <div class="dropdown-divider"></div>
+      <a href="#"
+         onclick="document.getElementById('logout-form').submit();"
+         class="dropdown-item">
+         <div class="d-flex align-items-cemter gap-3">
+            <i class="bx bx-power-off fs-5"></i>
+            <span>Logout</span>
+         </div>
+      </a>
+      <form id="logout-form"
+            method="post"
+            action="{% url 'user_logout' %}{% if logout_next_url %}?next={% url logout_next_url %}{% endif %}">
+         {% csrf_token %}
+      </form>
+   </div>
+</div>

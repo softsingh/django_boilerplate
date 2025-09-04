@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+   <head>
+      <title>Copy User List</title>
+   </head>
+   <body>
+      <h1>User List</h1>
+      <textarea id="userData" rows="20" cols="100">{{ user_data }}</textarea>
+      <br>
+      <br>
+      <button onclick="copyToClipboard()">Copy to Clipboard</button>
+      <script>
+         function copyToClipboard() {
+            const textarea = document.getElementById("userData");
+            navigator.clipboard.writeText(textarea.value)
+               .then(() => {
+                     alert("Copied to clipboard!");
+               })
+               .catch(err => {
+                     alert("Failed to copy: " + err);
+               });
+         }
+      </script>
+   </body>
+</html>

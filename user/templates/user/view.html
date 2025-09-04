@@ -1,0 +1,155 @@
+{% extends "_dash_base.html" %}
+{% load static %}
+{% load common_tags %}
+{% block title %}
+   View Account
+{% endblock title %}
+{% block content %}
+   <div class="card mb-6">
+      <div class="card-body">
+         <!-- Display messages -->
+         {% if messages %}
+            {% for message in messages %}
+               <div class="alert alert-{% if message.tags == 'success' %}success{% elif message.tags == 'error' %}danger{% else %}secondary{% endif %} alert-dismissible mb-4">
+                  {{ message }}
+                  <button class="btn-close"></button>
+               </div>
+            {% endfor %}
+         {% endif %}
+         <!-- End Display messages -->
+         <div class="d-flex align-items-center gap-6 pb-5 border-bottom">
+            {% if userobj.picture %}
+               <img class="d-block rounded bg-primary-light-80"
+                    src="/media/{{ userobj.picture }}"
+                    alt="Avatar"
+                    width="100px">
+            {% else %}
+               <img class="d-block rounded"
+                    src="{% static 'assets/img/blank_image.png' %}"
+                    id="uploadedAvatar"
+                    alt="Avatar"
+                    width="100px">
+            {% endif %}
+            <div>
+               <h5>{{ userobj.full_name }}</h5>
+               <small class="text-muted">{% include "user/includes/_role.html" %}</small>
+            </div>
+         </div>
+      </div>
+      <div class="card-body pt-0">
+         <div class="row g-2 mb-4">
+            <div class="col-sm-12 col-lg-3">
+               <label class="form-label">Username</label>
+            </div>
+            <div class="col-sm-12 col-lg-9 fw-500">
+               <div class="filled-container">{{ userobj.username }}</div>
+            </div>
+         </div>
+         <div class="row g-2 mb-4">
+            <div class="col-sm-12 col-lg-3">
+               <label class="form-label">Email</label>
+            </div>
+            <div class="col-sm-12 col-lg-9 fw-500">
+               <div class="filled-container">{{ userobj.email }}</div>
+            </div>
+         </div>
+         <div class="row g-2 mb-4">
+            <div class="col-sm-12 col-lg-3">
+               <label class="form-label">Name</label>
+            </div>
+            <div class="col-sm-12 col-lg-9 fw-500">
+               <div class="filled-container">{{ userobj.full_name }}</div>
+            </div>
+         </div>
+         <div class="row g-2 mb-4">
+            <div class="col-sm-12 col-lg-3">
+               <label class="form-label">Phone Number</label>
+            </div>
+            <div class="col-sm-12 col-lg-9 fw-500">
+               <div class="filled-container">{{ userobj.phone_number }}</div>
+            </div>
+         </div>
+         <div class="row g-2 mb-4">
+            <div class="col-sm-12 col-lg-3">
+               <label class="form-label">Gender</label>
+            </div>
+            <div class="col-sm-12 col-lg-9 fw-500">
+               <div class="filled-container">{{ userobj.gender|title }}</div>
+            </div>
+         </div>
+         <div class="row g-2 mb-4">
+            <div class="col-sm-12 col-lg-3">
+               <label class="form-label">Status</label>
+            </div>
+            <div class="col-sm-12 col-lg-9 fw-500">
+               <div class="filled-container">
+                  {% if userobj.is_active %}
+                     <span class="badge bg-label-success rounded fw-500">Active</span>
+                  {% else %}
+                     <span class="badge bg-label-danger rounded fw-500">Disabled</span>
+                  {% endif %}
+                  {% if userobj.is_staff %}<span class="badge bg-label-info rounded fw-500">Staff</span>{% endif %}
+                  {% if userobj.is_superuser %}<span class="badge bg-label-warning rounded fw-500">Admin</span>{% endif %}
+               </div>
+            </div>
+         </div>
+         <div class="row g-2 mb-4">
+            <div class="col-sm-12 col-lg-3">
+               <label class="form-label">Remarks</label>
+            </div>
+            <div class="col-sm-12 col-lg-9 fw-500">
+               <div class="filled-container">
+                  {% if userobj.remarks %}
+                     {{ userobj.remarks }}
+                  {% else %}
+                     &nbsp;
+                  {% endif %}
+               </div>
+            </div>
+         </div>
+         {% if user.is_superuser %}
+            <div class="row g-4 mb-4">
+               <div class="col-lg-6">
+                  <label class="form-label mb-2">Groups</label>
+                  <div class="filled-container scroll-y" style="height: 200px">
+                     <ul class="list-unstyled">
+                        {% for group in userobj.groups.all %}
+                           <li>{{ group.name }}</li>
+                        {% empty %}
+                           <li>No groups assigned</li>
+                        {% endfor %}
+                     </ul>
+                  </div>
+               </div>
+               <div class="col-lg-6">
+                  <label class="form-label mb-2">Permissions</label>
+                  <div class="filled-container scroll-y" style="height: 200px">
+                     {% for category, perms in grouped_permissions.items %}
+                        {% with outer_last=forloop.last %}
+                           <div class="permission-group">
+                              <h6 class="fw-bold mb-1">{{ category|title }}</h6>
+                              {% for perm in perms %}
+                                 <ul class="list-unstyled {% if forloop.last and not outer_last %}mb-3{% else %}mb-1{% endif %}">
+                                    <li>{{ perm.name|title }}</li>
+                                 </ul>
+                              {% endfor %}
+                           </div>
+                        {% endwith %}
+                     {% empty %}
+                        <p>No permissions assigned</p>
+                     {% endfor %}
+                  </div>
+               </div>
+            </div>
+         {% endif %}
+         <div class="mt-8">
+            <a href="{% url "user_edit" userobj.id %}" class="btn btn-primary">Edit Account</a>
+            {% if referer %}
+               <a href="{{ referer }}" class="btn btn-secondary">Back</a>
+            {% else %}
+               <a href="{% url "dashboard" %}" class="btn btn-secondary">Dashboard</a>
+            {% endif %}
+         </div>
+      </div>
+   </div>
+{% endblock content %}

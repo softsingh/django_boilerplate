@@ -1,0 +1,483 @@
+{% extends "_dash_base.html" %}
+{% load common_tags %}
+{% load static %}
+{% block title %}
+   Edit Account
+{% endblock title %}
+{% block head_link %}
+   <link rel="stylesheet"
+         href="{% static 'assets/vendor/cropperjs-1.6.2/css/cropper.min.css' %}" />
+{% endblock head_link %}
+{% block content %}
+   <div class="card mb-6">
+      <div class="card-body">
+         <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            {% if form.non_field_errors %}
+               {% include "includes/_form-error.html" with css_class="mb-3" errors=form.non_field_errors %}
+            {% endif %}
+            <div class="row g-4">
+               {% for field in form %}
+                  {% if field.field.widget.input_type == "file" %}
+                     <div class="d-flex align-items-start align-items-sm-center gap-6 py-5 border-bottom">
+                        {% if form.instance.picture %}
+                           <img class="d-block rounded bg-primary-light-80"
+                                src="{{ form.instance.picture.url }}"
+                                id="uploadedAvatar"
+                                alt="Avatar"
+                                width="100px">
+                        {% else %}
+                           <img class="d-block rounded"
+                                src="{% static 'assets/img/blank_image.png' %}"
+                                id="uploadedAvatar"
+                                alt="Avatar"
+                                width="100px">
+                        {% endif %}
+                        <div>
+                           <label for="{{ field.id_for_label }}"
+                                  class="btn btn-primary me-1 mb-4"
+                                  data-toggle="tooltip"
+                                  data-placement="bottom"
+                                  data-title="Upload">
+                              <span class="d-none d-sm-block">Upload Photo</span>
+                              <i class="bx bx-upload d-block d-sm-none"></i>
+                              <input type="file"
+                                     id="{{ field.id_for_label }}"
+                                     name="{{ field.name }}"
+                                     hidden
+                                     accept="image/jpeg, image/jpg, image/gif, image/png">
+                           </label>
+                           <label for="picture-clear_id"
+                                  class="btn btn-secondary mb-4"
+                                  id="clearImageBtn"
+                                  data-toggle="tooltip"
+                                  data-placement="bottom"
+                                  data-title="Clear">
+                              <span class="d-none d-sm-block">Clear</span>
+                              <i class="bx bx-reset d-block d-sm-none"></i>
+                              <input type="checkbox" name="picture-clear" id="picture-clear_id" hidden>
+                           </label>
+                           <div>Allowed JPG, GIF or PNG. Max size of 100K</div>
+                        </div>
+                     </div>
+                  {% elif field.field.widget|class_name == "CheckboxSelectMultiple" %}
+                     <div class="col-md-6">
+                        <label class="form-label mb-2">{{ field.label|title }}</label>
+                        <div class="search-close-wrapper mb-1">
+                           <input type="search"
+                                  placeholder="Search from {{ field.label|title }}"
+                                  class="form-control search-input"
+                                  id="seachFrom{{ field.label|title|replace:' ,' }}">
+                           <i class="bx bx-x bx-sm search-closer cursor-pointer"
+                              onclick="onSearchFrom{{ field.label|title|replace:' ,' }}Close()"></i>
+                        </div>
+                        <div class="bordered-container scroll-y"
+                             id="{{ field.name }}_checkbox_container"
+                             style="height: 200px">
+                           {% if field.name == "user_permissions" %}
+                              {% for category, perms in grouped_permissions.items %}
+                                 {% with outest_last=forloop.last %}
+                                    <div class="permission-group">
+                                       <h6 class="fw-bold mb-2">{{ category|title }}</h6>
+                                       {% for perm in perms %}
+                                          {% with outer_last=forloop.last %}
+                                             {% for checkbox in form.user_permissions %}
+                                                {% if checkbox.data.value == perm.id %}
+                                                   <div class="form-check {% if outer_last and not outest_last %}mb-4{% else %}mb-1{% endif %}">
+                                                      <input type="checkbox"
+                                                             class="form-check-input"
+                                                             name="{{ checkbox.data.name }}"
+                                                             value="{{ checkbox.data.value }}"
+                                                             id="{{ checkbox.id_for_label }}"
+                                                             {% if checkbox.data.selected %}checked{% endif %}>
+                                                      <label class="form-check-label" for="{{ checkbox.id_for_label }}">{{ perm.name|title }}</label>
+                                                   </div>
+                                                {% endif %}
+                                             {% endfor %}
+                                          {% endwith %}
+                                       {% endfor %}
+                                    </div>
+                                 {% endwith %}
+                              {% endfor %}
+                           {% else %}
+                              {% for checkbox in field %}
+                                 <div class="form-check align-items-start {% if not forloop.last %}mb-1{% endif %}">
+                                    <input class="form-check-input flex-shrink-0"
+                                           type="checkbox"
+                                           name="{{ checkbox.data.name }}"
+                                           value="{{ checkbox.data.value }}"
+                                           id="{{ checkbox.id_for_label }}"
+                                           {% if checkbox.data.selected %}checked{% endif %}>
+                                    <label class="form-check-label" for="{{ checkbox.id_for_label }}">{{ checkbox.choice_label }}</label>
+                                 </div>
+                              {% endfor %}
+                           {% endif %}
+                           {% if field.errors %}
+                              {% include "includes/_form-error.html" with css_class="mb-4" errors=field.errors %}
+                           {% endif %}
+                        </div>
+                     </div>
+                  {% elif field.field.widget.input_type == "checkbox" %}
+                     <div class="form-check mb-1">
+                        {{ field }}
+                        <label class="form-check-label" for="{{ field.id_for_label }}">{{ field.label|title }}</label>
+                     </div>
+                  {% elif field.field.widget|class_name == "Textarea" %}
+                     <div class="col-md-12">
+                        <label class="form-label mb-2" for="{{ field.id_for_label }}">{{ field.label|title }}</label>
+                        {{ field|add_error_class:field.errors }}
+                     </div>
+                  {% else %}
+                     <div class="col-md-6">
+                        <label class="form-label mb-2" for="{{ field.id_for_label }}">{{ field.label|title }}</label>
+                        {{ field|add_error_class:field.errors }}
+                     </div>
+                  {% endif %}
+                  {% if field.errors %}
+                     {% include "includes/_form-error.html" with css_class="mb-4" errors=field.errors %}
+                  {% endif %}
+               {% endfor %}
+            </div>
+            <div class="mt-6">
+               <label class="form-label d-block mb-2">Password</label>
+               <a href="{% url "user_change_password" form.instance.pk %}">Change Password</a>
+            </div>
+            <div class="mt-8">
+               <button type="submit" class="btn btn-primary me-1">Save Changes</button>
+               {% if referer %}
+                  <a href="{{ referer }}" class="btn btn-secondary">Back</a>
+               {% else %}
+                  <a href="{% url 'user_view' form.instance.pk %}"
+                     class="btn btn-secondary">Cancel</a>
+               {% endif %}
+            </div>
+         </form>
+      </div>
+   </div>
+   <!-- Cropping Modal -->
+   <div id="cropperModal"
+        style="display:none;
+               position:fixed;
+               top:0;
+               left:0;
+               width:100vw;
+               height:100vh;
+               background:#000000cc;
+               z-index:2000">
+      <div style="position:absolute;
+                  top:50%;
+                  left:50%;
+                  transform:translate(-50%,-50%);
+                  background: var(--paper-bg);
+                  padding:1rem;
+                  max-width:95vw;
+                  max-height:90vh;
+                  overflow:auto;
+                  scrollbar-width:thin">
+         <img id="cropperPreview" style="max-width:100%; max-height:30vh;" />
+         <div class="gap-container gap-2 my-4">
+            <label class="form-label mb-0">
+               Rotation:
+               <input type="number"
+                      id="rotationAngle"
+                      value="0"
+                      min="-180"
+                      max="180"
+                      step="0.1"
+                      class="form-control form-control-sm d-inline-block"
+                      style="width: 90px">
+            </label>
+            <button class="btn btn-sm btn-outline-danger" onclick="resetCrop()">Reset</button>
+            <label class="form-label mb-0">
+               Output (WxH):
+               <input type="number"
+                      id="outputWidth"
+                      min="10"
+                      max="1000"
+                      step="10"
+                      value="200"
+                      class="form-control form-control-sm d-inline-block"
+                      style="width: 80px">
+            </label>
+            <label>
+               Quality:
+               <input type="range"
+                      id="outputQuality"
+                      min="0.3"
+                      max="1"
+                      step="0.05"
+                      value="1">
+            </label>
+            <div id="originalInfo" class="text-muted small"></div>
+            <div id="cropBoxInfo" class="text-muted small"></div>
+            <div id="outputSize" class="text-muted small"></div>
+         </div>
+         <div class="text-end mt-3">
+            <button id="confirmCrop" class="btn btn-primary">OK</button>
+            <button id="cancelCrop" class="btn btn-secondary">Cancel</button>
+         </div>
+      </div>
+   </div>
+{% endblock content %}
+{% block bottom_link %}
+   <script src="{% static 'assets/vendor/cropperjs-1.6.2/js/cropper.min.js' %}"></script>
+   <!-- <script>
+      // Image display script
+      document.getElementById('id_picture').addEventListener('change', function(event) {
+         const file = event.target.files[0];
+         if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+               const img = document.querySelector('#uploadedAvatar');
+               if (img) {
+                  img.src = e.target.result;
+               } else {
+                  console.error('Image element not found');
+               }
+            };
+            reader.readAsDataURL(file);
+         }
+      });
+      
+      // Clear image script
+      document.getElementById('clearImageBtn').addEventListener('click', function () {
+         const img = document.querySelector('#uploadedAvatar');
+         if (img) {
+            img.src = "{% static 'assets/img/blank_image.png' %}";  // fallback blank image
+         }
+         document.getElementById('id_picture').value = '';  // clear file input
+         document.getElementById('picture-clear_id').checked = true;  // mark to clear on server
+      });
+   </script> -->
+   <script>
+      // Clear image script
+      document.getElementById('clearImageBtn').addEventListener('click', function () {
+         const img = document.querySelector('#uploadedAvatar');
+         if (img) {
+            img.src = "{% static 'assets/img/blank_image.png' %}";  // fallback blank image
+         }
+         document.getElementById('id_picture').value = '';  // clear file input
+         document.getElementById('picture-clear_id').checked = true;  // mark to clear on server
+      });
+   </script>
+   <script>
+      let cropper;
+      const fileInput = document.getElementById('id_picture');
+      const cropperModal = document.getElementById('cropperModal');
+      const cropperPreview = document.getElementById('cropperPreview');
+      const uploadedAvatar = document.getElementById('uploadedAvatar');
+      const rotationAngleInput = document.getElementById('rotationAngle');
+      const outputWidth = document.getElementById('outputWidth');
+      const outputQuality = document.getElementById('outputQuality');
+      const outputSizeDisplay = document.getElementById('outputSize');
+      const originalInfoDisplay = document.getElementById('originalInfo');
+      const cropBoxInfoDisplay = document.getElementById('cropBoxInfo');
+
+      let originalFileType = 'image/jpeg';
+
+      fileInput.addEventListener('change', function (event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      originalFileType = file.type;
+
+      const reader = new FileReader();
+      reader.onload = function (e) {
+         cropperPreview.src = e.target.result;
+         cropperModal.style.display = 'block';
+
+         if (cropper) cropper.destroy();
+         cropper = new Cropper(cropperPreview, {
+            aspectRatio: 1,
+            viewMode: 1,
+            zoomOnWheel: false,
+            responsive: true,
+            autoCropArea: 1,
+            minCropBoxWidth: 50,
+            minCropBoxHeight: 50,
+            ready() {
+            const img = cropper.image;
+            originalInfoDisplay.textContent = `Original: ${img.naturalWidth} x ${img.naturalHeight}px | ${Math.round(file.size / 1024)} KB`;
+            if (img.naturalWidth < 200 || img.naturalHeight < 200) {
+               outputWidth.value = Math.min(img.naturalWidth, img.naturalHeight);
+            }
+            outputWidth.max = Math.min(img.naturalWidth, img.naturalHeight);
+            updateOutputSize();
+            },
+            crop(event) {
+            const data = event.detail;
+            cropBoxInfoDisplay.textContent = `Crop: ${Math.round(data.width)} x ${Math.round(data.height)}px`;
+            updateOutputSize();
+            }
+         });
+      };
+      reader.readAsDataURL(file);
+      });
+
+      function rotateImage(deg) {
+      if (cropper) cropper.rotate(deg);
+      }
+
+      rotationAngleInput.addEventListener('input', function () {
+         const angle = parseFloat(rotationAngleInput.value);
+         if (cropper) cropper.rotateTo(angle);
+         updateOutputSize();
+      });
+
+      /*function zoomImage(step) {
+      if (cropper) cropper.zoom(step);
+      } */
+
+      function resetCrop() {
+      if (cropper) cropper.reset();
+         rotationAngleInput.value = 0;
+      }
+
+      function updateOutputSize() {
+         if (!cropper) return;
+
+         const width = parseInt(outputWidth.value);
+         const qualityInput = document.getElementById('outputQuality');
+         const quality = parseFloat(qualityInput.value);
+
+         const canvas = cropper.getCroppedCanvas({ width });
+         if (!canvas) {
+            outputSizeDisplay.textContent = 'Estimated size: N/A';
+            return;
+         }
+
+         const format = originalFileType.toLowerCase();
+         const supportsQuality = format === 'image/jpeg' || format === 'image/webp';
+
+         // Hide or show quality slider depending on format
+         qualityInput.parentElement.style.display = supportsQuality ? 'inline-block' : 'none';
+
+         canvas.toBlob(blob => {
+            if (blob) {
+               const sizeKB = blob.size / 1024;
+               outputSizeDisplay.textContent = `Estimated size: ${sizeKB.toFixed(1)} KB` +
+               (supportsQuality ? ` (Quality: ${quality})` : ` (Lossless format)`);
+            } else {
+               outputSizeDisplay.textContent = 'Estimated size: N/A';
+            }
+         }, format, supportsQuality ? quality : undefined);
+      }
+
+
+      outputWidth.addEventListener('input', updateOutputSize);
+      outputQuality.addEventListener('input', updateOutputSize);
+
+      document.getElementById('cancelCrop').addEventListener('click', function () {
+      cropper.destroy();
+      cropperModal.style.display = 'none';
+      fileInput.value = '';
+      });
+
+      document.getElementById('confirmCrop').addEventListener('click', function () {
+      let quality = parseFloat(outputQuality.value);
+      const width = parseInt(outputWidth.value);
+      const tryCompress = () => {
+         const canvas = cropper.getCroppedCanvas({ width });
+         canvas.toBlob(function (blob) {
+            const sizeKB = blob.size / 1024;
+            if (sizeKB <= 100 || quality <= 0.3) {
+            const extension = originalFileType.split('/')[1];
+            const croppedFile = new File([blob], `cropped.${extension}`, { type: originalFileType });
+            const dataTransfer = new DataTransfer();
+            dataTransfer.items.add(croppedFile);
+            fileInput.files = dataTransfer.files;
+            uploadedAvatar.src = URL.createObjectURL(blob);
+            cropper.destroy();
+            cropperModal.style.display = 'none';
+            } else {
+            quality -= 0.05;
+            outputQuality.value = quality.toFixed(2);
+            updateOutputSize();
+            tryCompress();
+            }
+         }, originalFileType, quality);
+      };
+      tryCompress();
+      });
+   </script>
+   <script>
+   const seachFromGroups = document.getElementById('seachFromGroups');
+   const groupsCheckboxContainer = document.getElementById('groups_checkbox_container');
+
+   seachFromGroups.addEventListener('keydown', function (event) {
+      if (event.key === 'Escape') {
+         onSearchFromGroupsClose();
+      }
+   });
+
+   seachFromGroups.addEventListener('input', function () {
+      const searchTerm = seachFromGroups.value.toLowerCase();
+      const groups = groupsCheckboxContainer.querySelectorAll('.form-check');
+
+      groups.forEach(group => {
+         const label = group.querySelector('.form-check-label').textContent.toLowerCase();
+         if (label.includes(searchTerm)) {
+            group.style.display = '';
+         } else {
+            group.style.display = 'none';
+         }
+      });
+   });
+
+   function onSearchFromGroupsClose() {
+      seachFromGroups.value = '';
+      seachFromGroups.focus();
+      const groups = groupsCheckboxContainer.querySelectorAll('.form-check');
+
+      groups.forEach(group => {
+            group.style.display = '';
+      });
+   }
+   </script>
+   <script>
+   const seachFromUserPermissions = document.getElementById('seachFromUserPermissions');
+   const userPermissionsCheckboxContainer = document.getElementById('user_permissions_checkbox_container');
+
+   seachFromUserPermissions.addEventListener('keydown', function (event) {
+      if (event.key === 'Escape') {
+         onSearchFromUserPermissionsClose();
+      }
+   });
+
+   seachFromUserPermissions.addEventListener('input', function () {
+      const searchTerm = seachFromUserPermissions.value.toLowerCase();
+      const permissionGroups = userPermissionsCheckboxContainer.querySelectorAll('.permission-group');
+
+      permissionGroups.forEach(group => {
+         const permissions = group.querySelectorAll('.form-check');
+         let hasVisiblePermissions = false;
+
+         permissions.forEach(permission => {
+            const label = permission.querySelector('.form-check-label').textContent.toLowerCase();
+            if (label.includes(searchTerm)) {
+               permission.style.display = '';
+               hasVisiblePermissions = true;
+            } else {
+               permission.style.display = 'none';
+            }
+         });
+
+         group.style.display = hasVisiblePermissions ? '' : 'none';
+      });
+   });
+
+   function onSearchFromUserPermissionsClose() {
+      seachFromUserPermissions.value = '';
+      seachFromUserPermissions.focus();
+      const permissionGroups = userPermissionsCheckboxContainer.querySelectorAll('.permission-group');
+
+      permissionGroups.forEach(group => {
+         const permissions = group.querySelectorAll('.form-check');
+         permissions.forEach(permission => {
+            permission.style.display = '';
+         });
+         group.style.display = '';
+      });
+   }
+   </script>
+{% endblock bottom_link %}

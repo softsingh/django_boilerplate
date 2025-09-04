@@ -1,0 +1,121 @@
+{% extends "_dash_base.html" %}
+{% load static %}
+{% load common_tags %}
+{% block title %}
+   {{ title }}
+{% endblock title %}
+{% block content %}
+   <div class="card">
+      <div class="px-6 py-4">
+         <div class="mb-4">
+            <h4>{{ title }}</h4>
+         </div>
+         <form method="post" novalidate>
+            {% csrf_token %}
+            {% if form.non_field_errors %}
+               {% include "includes/_form-error.html" with css_class="mb-3" errors=form.non_field_errors %}
+            {% endif %}
+            <div class="mb-4">
+               <label for="{{ form.name.id_for_label }}" class="form-label mb-2">Name</label>
+               {{ form.name|add_error_class:form.name.errors }}
+               {% if form.name.errors %}
+                  {% include "includes/_form-error.html" with css_class="mt-1 mb-4" errors=form.name.errors %}
+               {% endif %}
+               {% if form.name.help_text %}<div class="form-text text-muted">{{ form.name.help_text }}</div>{% endif %}
+            </div>
+            {# Permissions Checkboxes #}
+            <div class="mb-4">
+               <label class="form-label mb-2">Permissions</label>
+               <div class="search-close-wrapper mb-1">
+                  <input type="search"
+                         placeholder="Search from Permissions"
+                         class="form-control search-input"
+                         id="seachFromPermissions">
+                  <i class="bx bx-x bx-sm search-closer cursor-pointer"
+                     onclick="onSearchClose()"></i>
+               </div>
+               <div class="bordered-container scroll-y mb-4"
+                    style="max-height: 200px;
+                           min-height: 70px">
+                  {% for category, perms in grouped_permissions.items %}
+                     {% with outer_last=forloop.last %}
+                        <div class="permission-group">
+                           <h6 class="fw-bold mb-2">{{ category|title }}</h6>
+                           {% for perm in perms %}
+                              <div class="form-check {% if forloop.last and not outer_last %}mb-4{% else %}mb-1{% endif %}">
+                                 <input type="checkbox"
+                                        class="form-check-input"
+                                        name="permissions"
+                                        value="{{ perm.id }}"
+                                        id="perm_{{ perm.id }}"
+                                        {% if perm.id in form.permissions.initial %}checked{% endif %}>
+                                 <label class="form-check-label" for="perm_{{ perm.id }}">{{ perm.name|title }}</label>
+                              </div>
+                           {% endfor %}
+                        </div>
+                     {% endwith %}
+                  {% endfor %}
+               </div>
+               {% if form.permissions.errors %}
+                  {% include "includes/_form-error.html" with css_class="mt-1 mb-4" errors=form.permissions.errors %}
+               {% endif %}
+            </div>
+            <div class="d-flex justify-content-start gap-1">
+               <button type="submit" class="btn btn-primary">{{ button_text }}</button>
+               {% if referer %}
+                  <a href="{{ referer }}" class="btn btn-secondary">Back</a>
+               {% else %}
+                  <a href="{% url "dashboard" %}" class="btn btn-secondary">Dashboard</a>
+               {% endif %}
+            </div>
+         </form>
+      </div>
+   </div>
+{% endblock content %}
+{% block bottom_link %}
+   <script>
+   const seachFromPermissions = document.getElementById('seachFromPermissions');
+
+   seachFromPermissions.addEventListener('keydown', function (event) {
+      if (event.key === 'Escape') {
+         onSearchClose();
+      }
+   });
+
+   seachFromPermissions.addEventListener('input', function () {
+      const searchTerm = this.value.toLowerCase();
+      const permissionGroups = document.querySelectorAll('.permission-group');
+
+      permissionGroups.forEach(group => {
+         const permissions = group.querySelectorAll('.form-check');
+         let hasVisiblePermissions = false;
+
+         permissions.forEach(permission => {
+            const label = permission.querySelector('.form-check-label').textContent.toLowerCase();
+            if (label.includes(searchTerm)) {
+               permission.style.display = '';
+               hasVisiblePermissions = true;
+            } else {
+               permission.style.display = 'none';
+            }
+         });
+
+         group.style.display = hasVisiblePermissions ? '' : 'none';
+      });
+   });
+
+   function onSearchClose() {
+      document.getElementById('seachFromPermissions').value = '';
+      document.getElementById('seachFromPermissions').focus();
+      const permissionGroups = document.querySelectorAll('.permission-group');
+
+      permissionGroups.forEach(group => {
+         const permissions = group.querySelectorAll('.form-check');
+         permissions.forEach(permission => {
+            permission.style.display = '';
+         });
+         group.style.display = '';
+      });
+   }
+   </script>
+{% endblock bottom_link %}

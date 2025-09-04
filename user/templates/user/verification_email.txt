@@ -1,0 +1,12 @@
+Hello {% if user.full_name %}{{ user.full_name }}{% else %}{{ user.username }}{% endif %}
+
+You are receiving this email because you email address needs verification before login to {{ PROJECT_NAME_SHORT }}.
+
+Click the link below to verify your email:
+
+{{ verification_link }}
+
+If you didn’t register with {{ PROJECT_NAME_SHORT }}, you can safely ignore this email.
+
+
+Thanks

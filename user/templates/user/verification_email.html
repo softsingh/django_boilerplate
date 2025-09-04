@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Reset Password</title>
+   </head>
+   <body>
+      <p>
+         Hello
+         {% if user.full_name %}
+            {{ user.full_name }}
+         {% else %}
+            {{ user.username }}
+         {% endif %}
+      </p>
+      <p>
+         You are receiving this email because you email address needs verification before login to {{ PROJECT_NAME_SHORT }}.
+         <br>
+         <br>
+         Click the link below to verify your email:
+         <br>
+         {{ verification_link }}
+         <br>
+         <br>
+         If you didn’t register with {{ PROJECT_NAME_SHORT }}, you can safely ignore this email.
+         <br>
+         <br>
+      </p>
+      <p>Thanks</p>
+   </body>
+</html>

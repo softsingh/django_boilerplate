@@ -1,0 +1,257 @@
+{% extends "_dash_base.html" %}
+{% load static %}
+{% load common_tags %}
+{% block title %}
+   Groups
+{% endblock title %}
+{% block content %}
+   <div class="card">
+      <div class="px-6 pt-6">
+         <!-- Display messages -->
+         {% if messages %}
+            {% for message in messages %}
+               <div class="alert alert-{% if message.tags == 'success' %}success{% elif message.tags == 'error' %}danger{% else %}secondary{% endif %} alert-dismissible mb-4">
+                  {{ message }}
+                  <button class="btn-close"></button>
+               </div>
+            {% endfor %}
+         {% endif %}
+         <!-- End Display messages -->
+         <div class="d-flex align-items-center justify-content-between">
+            <h5>Groups</h5>
+            <div class="d-flex align-items-center justify-content-between gap-2">
+               <a href="{% url 'user_group_add' %}" class="btn btn-primary">
+                  <div class="d-flex align-items-center justify-content-between gap-1">
+                     <i class="bx bx-plus fs-4"></i>
+                     <span>Add Group</span>
+                  </div>
+               </a>
+               <div class="dropdown">
+                  <div class="dropdown-toggle text-body cursor-pointer">
+                     <i class="bx bx-dots-vertical-rounded fs-4"></i>
+                  </div>
+                  <div class="dropdown-menu dropdown-menu-end">
+                     <div class="px-6 pt-2 pb-3 mb-1 border-bottom">Export</div>
+                     <a href="{% url "user_group_list_export_as_xlsx" %}?q={{ request.GET.q|default:'' }}"
+                        class="dropdown-item">
+                        <div class="d-flex align-items-center gap-2">
+                           <i class="bx bx-table fs-4"></i>
+                           <span>xlsx</span>
+                        </div>
+                     </a>
+                     <a href="{% url "user_group_list_export_as_csv" %}?q={{ request.GET.q|default:'' }}"
+                        class="dropdown-item">
+                        <div class="d-flex align-items-center gap-2">
+                           <i class="bx bx-file fs-4"></i>
+                           <span>csv</span>
+                        </div>
+                     </a>
+                     <a href="{% url "user_group_list_print" %}?q={{ request.GET.q|default:'' }}"
+                        class="dropdown-item"
+                        target="_blank">
+                        <div class="d-flex align-items-center gap-2">
+                           <i class="bx bx-printer fs-4"></i>
+                           <span>Print</span>
+                        </div>
+                     </a>
+                     <a href="{% url "user_group_list_copy" %}?q={{ request.GET.q|default:'' }}"
+                        class="dropdown-item"
+                        target="_blank">
+                        <div class="d-flex align-items-center gap-2">
+                           <i class="bx bx-copy fs-4"></i>
+                           <span>Copy</span>
+                        </div>
+                     </a>
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+      <div class="row g-4 px-6 my-4">
+         <div class="col-12 col-sm-6">
+            <form method="get">
+               <select class="form-select"
+                       name="page_size"
+                       id="pageSize"
+                       onchange="this.form.submit()">
+                  {% for size in page_size_options %}
+                     <option value="{{ size }}"
+                             {% if current_page_size == size %}selected{% endif %}>{{ size }}</option>
+                  {% endfor %}
+               </select>
+               <input type="hidden" name="q" value="{{ request.GET.q|default:'' }}">
+            </form>
+         </div>
+         <div class="col-12 col-sm-6">
+            <form method="get" id="formSearchFromGroups">
+               <div class="search-close-wrapper">
+                  <input type="search"
+                         placeholder="Search from Groups"
+                         class="form-control search-input"
+                         name="q"
+                         id="inputSeachFromGroups"
+                         value="{{ request.GET.q|default:'' }}">
+                  <i class="bx bx-x bx-sm search-closer cursor-pointer"
+                     onclick="document.getElementById('inputSeachFromGroups').value=''; document.getElementById('formSearchFromGroups').submit();"></i>
+               </div>
+               <input type="hidden" name="page_size" value="{{ current_page_size }}">
+            </form>
+         </div>
+      </div>
+      <div class="mb-5">
+         <table class="dash-table group">
+            <thead>
+               <tr>
+                  <th>Group</th>
+                  <th>Permissions</th>
+                  <th>Users</th>
+                  <th>Actions</th>
+                  <th>Actions</th>
+               </tr>
+            </thead>
+            <tbody>
+               {% for group in groups %}
+                  <tr>
+                     <td>
+                        <a href="{% url 'user_group_view' group.id %}"
+                           class="text-heading-link text-truncate">
+                           <span class="fs-4">{{ group.name }}</span>
+                        </a>
+                     </td>
+                     <td>
+                        <span class="fs-4">{{ group.permissions.count }}</span>
+                     </td>
+                     <td>
+                        <span class="fs-4">{{ group.user_set.count }}</span>
+                     </td>
+                     <td>
+                        <div class="d-flex align-items-center gap-1">
+                           <a href="{% url 'user_group_edit' group.id %}" class="text-heading-link">
+                              <i class="bx bx-edit fs-5"></i>
+                           </a>
+                           <a href="{% url 'user_group_delete' group.id %}"
+                              class="text-heading-link">
+                              <i class="bx bx-trash fs-5"></i>
+                           </a>
+                        </div>
+                     </td>
+                     <td>
+                        <div class="dropdown">
+                           <a href="#" class="dropdown-toggle text-body">
+                              <i class="bx bx-dots-vertical-rounded fs-4"></i>
+                           </a>
+                           <div class="dropdown-menu dropdown-menu-end">
+                              <a href="{% url 'user_group_edit' group.id %}" class="dropdown-item">
+                                 <div class="d-flex align-items-center gap-2">
+                                    <i class="bx bx-edit fs-4"></i>
+                                    <span>Edit</span>
+                                 </div>
+                              </a>
+                              <a href="{% url 'user_group_delete' group.id %}" class="dropdown-item">
+                                 <div class="d-flex align-items-center gap-2">
+                                    <i class="bx bx-trash fs-4"></i>
+                                    <span>Delete</span>
+                                 </div>
+                              </a>
+                           </div>
+                        </div>
+                     </td>
+                  </tr>
+               {% empty %}
+                  <tr>
+                     <td colspan="4" class="text-center">No groups found.</td>
+                  </tr>
+               {% endfor %}
+            </tbody>
+         </table>
+      </div>
+      <!-- Pagination -->
+      {% if is_paginated %}
+         <div class="row px-6 mb-5">
+            <div class="col-sm-12 col-lg-6">
+               <div class="dash-table-pagination-info text-muted">
+                  Showing {{ page_obj.start_index }} to {{ page_obj.end_index }} of {{ page_obj.paginator.count }} Items
+               </div>
+            </div>
+            <div class="col-sm-12 col-lg-6">
+               <div class="dash-table-pagination-container">
+                  <ul class="pagination">
+                     {% if page_obj.has_previous %}
+                        <li class="page-item page-item-first">
+                           <a href="?page=1&page_size={{ current_page_size }}&q={{ request.GET.q|default:'' }}"
+                              class="page-link">
+                              <i class="bx bx-first-page bx-18px"></i>
+                           </a>
+                        </li>
+                        <li class="page-item page-item-previous">
+                           <a href="?page={{ page_obj.previous_page_number }}&page_size={{ current_page_size }}&q={{ request.GET.q|default:'' }}"
+                              class="page-link">
+                              <i class="bx bx-chevron-left bx-18px"></i>
+                           </a>
+                        </li>
+                     {% else %}
+                        <li class="page-item page-item-first disabled">
+                           <a href="#" class="page-link">
+                              <i class="bx bx-first-page bx-18px"></i>
+                           </a>
+                        </li>
+                        <li class="page-item page-item-previous disabled">
+                           <a href="#" class="page-link">
+                              <i class="bx bx-chevron-left bx-18px"></i>
+                           </a>
+                        </li>
+                     {% endif %}
+                     {% if page_obj.paginator.num_pages > 4 %}
+                        {% for i in page_obj.paginator.page_range %}
+                           {% if i == page_obj.number %}
+                              <li class="page-item {% if i == page_obj.number %}active{% endif %}">
+                                 <a href="?page={{ i }}&page_size={{ current_page_size }}&q={{ request.GET.q|default:'' }}"
+                                    class="page-link">{{ i }}</a>
+                              </li>
+                           {% elif i == page_obj.number|add:'-3' or i == page_obj.number|add:'3' %}
+                              <li class="page-item">
+                                 <a href="?page={{ i }}&page_size={{ current_page_size }}&q={{ request.GET.q|default:'' }}"
+                                    class="page-link"><i class="bx bx-dots-horizontal-rounded"></i></a>
+                              </li>
+                           {% endif %}
+                        {% endfor %}
+                     {% else %}
+                        {% for i in page_obj.paginator.page_range %}
+                           <li class="page-item {% if i == page_obj.number %}active{% endif %}">
+                              <a href="?page={{ i }}&page_size={{ current_page_size }}&q={{ request.GET.q|default:'' }}"
+                                 class="page-link">{{ i }}</a>
+                           </li>
+                        {% endfor %}
+                     {% endif %}
+                     {% if page_obj.has_next %}
+                        <li class="page-item page-item-next">
+                           <a href="?page={{ page_obj.next_page_number }}&page_size={{ current_page_size }}&q={{ request.GET.q|default:'' }}"
+                              class="page-link">
+                              <i class="bx bx-chevron-right bx-18px"></i>
+                           </a>
+                        </li>
+                        <li class="page-item page-item-last">
+                           <a href="?page={{ page_obj.paginator.num_pages }}&page_size={{ current_page_size }}&q={{ request.GET.q|default:'' }}"
+                              class="page-link">
+                              <i class="bx bx-last-page bx-18px"></i>
+                           </a>
+                        </li>
+                     {% else %}
+                        <li class="page-item page-item-next disabled">
+                           <a href="#" class="page-link">
+                              <i class="bx bx-chevron-right bx-18px"></i>
+                           </a>
+                        </li>
+                        <li class="page-item page-item-last disabled">
+                           <a href="#" class="page-link">
+                              <i class="bx bx-last-page bx-18px"></i>
+                           </a>
+                        </li>
+                     {% endif %}
+                  </ul>
+               </div>
+            </div>
+         </div>
+      {% endif %}
+   </div>
+{% endblock content %}

@@ -1,0 +1,40 @@
+{% extends "_base.html" %}
+{% load static %}
+{% block title %}
+   Register
+{% endblock title %}
+{% block content %}
+   <div class="register-container">
+      <div class="card">
+         <div class="card-body">
+            <div class="app-brand">
+               <a href="{% url "index" %}" class="app-brand-link">
+                  <img src="{% static 'assets/img/logo.png' %}"
+                       alt="Logo"
+                       class="logo-image">
+                  <h5 class="logo-text">{{ PROJECT_NAME_SHORT }}</h5>
+               </a>
+            </div>
+            <div class="mb-5">
+               <div class="d-flex align-items-center gap-2 mb-2">
+                  <h5>Register</h5>
+               </div>
+               <p>Register new account. You must agree to the terms and condition.</p>
+            </div>
+            <form action="" class="login-form mb-5" method="post">
+               {% csrf_token %}
+               {% include "includes/_render_form.html" %}
+               <div class="mt-8">
+                  <button type="submit" class="btn btn-primary w-100">Register</button>
+               </div>
+            </form>
+            <p class="text-center">
+               <span>Already have account?</span>
+               <a href="{% url 'user_login' %}">
+                  <span>Login</span>
+               </a>
+            </p>
+         </div>
+      </div>
+   </div>
+{% endblock content %}

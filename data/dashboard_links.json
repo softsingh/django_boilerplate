@@ -1,0 +1,41 @@
+[
+    {
+        "label": "User List",
+        "url": "/user/list",
+        "permission": "user.can_view_others_profile"
+    },
+    {
+        "label": "View User Profile",
+        "url": "/user",
+        "permission": "user.can_view_profile"
+    },
+    {
+        "label": "Edit User Profile",
+        "url": "/user/edit",
+        "permission": "user.can_edit_profile"
+    },
+    {
+        "label": "Add User",
+        "url": "/user/add",
+        "permission": "user.can_add_user"
+    },
+    {
+        "label": "Change Password",
+        "url": "/user/change-password",
+        "permission": "user.can_change_password"
+    },
+    {
+        "label": "Logout",
+        "url": "/user/logout"
+    },
+    {
+        "label": "User Group List",
+        "url": "/user/group/list",
+        "permission": "auth.view_group"
+    },
+    {
+        "label": "Add User Group",
+        "url": "/user/group/add",
+        "permission": "auth.add_group"
+    }
+]

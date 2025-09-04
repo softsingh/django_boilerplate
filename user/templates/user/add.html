@@ -1,0 +1,26 @@
+{% extends "_dash_base.html" %}
+{% load static %}
+{% block title %}
+   Add User
+{% endblock title %}
+{% block content %}
+   <div class="card">
+      <div class="card-body">
+         <div class="mb-5">
+            <h5>Add New User</h5>
+         </div>
+         <form action="" class="login-form" method="post">
+            {% csrf_token %}
+            {% include "includes/_render_form.html" %}
+            <div class="mt-8">
+               <button type="submit" class="btn btn-primary">Add User</button>
+               {% if referer %}
+                  <a href="{{ referer }}" class="btn btn-secondary">Back</a>
+               {% else %}
+                  <a href="{% url 'user_list' %}" class="btn btn-secondary">Cancel</a>
+               {% endif %}
+            </div>
+         </form>
+      </div>
+   </div>
+{% endblock content %}

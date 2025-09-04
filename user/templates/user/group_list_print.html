@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="description" content="Django Boilerplate">
+        <meta name="keywords" content="Django, Boilerplate">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Group List</title>
+        <style>
+        @media print {
+            .no-print { display: none; }
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid #999;
+            padding: 8px;
+        }
+        </style>
+    </head>
+    <body>
+        <div class="no-print">
+            <button onclick="window.print()">Print</button>
+        </div>
+        <h2>Group List</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Group</th>
+                    <th>Permissions</th>
+                    <th>Users</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for group in groups %}
+                    <tr>
+                        <td>{{ group.name }}</td>
+                        <td>{{ group.permissions.count }}</td>
+                        <td>{{ group.user_set.count }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </body>
+</html>

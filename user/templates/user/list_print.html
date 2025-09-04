@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="description" content="Django Boilerplate">
+        <meta name="keywords" content="Django, Boilerplate">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>User List</title>
+        <style>
+        @media print {
+            .no-print { display: none; }
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid #999;
+            padding: 8px;
+        }
+        </style>
+    </head>
+    <body>
+        <div class="no-print">
+            <button onclick="window.print()">Print</button>
+        </div>
+        <h2>User List</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Status</th>
+                    <th>Role</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>Gender</th>
+                    <th>Date Joined</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                    <tr>
+                        <td>{{ user.full_name }}</td>
+                        <td>
+                            {% if user.is_active %}
+                                Active
+                            {% else %}
+                                Disabled
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if user.is_superuser %}
+                                Admin
+                            {% else %}
+                                User
+                            {% endif %}
+                        </td>
+                        <td>{{ user.email }}</td>
+                        <td>
+                            {% if user.phone_number %}{{ user.phone_number }}{% endif %}
+                        </td>
+                        <td>{{ user.gender }}</td>
+                        <td>{{ user.date_joined|date:"d-m-Y h:i:s A T" }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </body>
+</html>

@@ -1,0 +1,19 @@
+{% if html %}
+    {% if userobj.is_superuser %}
+        <div class="d-flex align-items-center gap-2">
+            <i class="bx bx-desktop text-primary fs-4"></i>
+            <span class="h-100">Admin</span>
+        </div>
+    {% else %}
+        <div class="d-flex align-items-center gap-2">
+            <i class="bx bx-user text-info fs-4"></i>
+            <span class="h-100">User</span>
+        </div>
+    {% endif %}
+{% else %}
+    {% if userobj.is_superuser %}
+        Admin
+    {% else %}
+        User
+    {% endif %}
+{% endif %}

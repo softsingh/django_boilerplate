@@ -1,0 +1,10 @@
+{
+  "[html]": {
+    "editor.defaultFormatter": "monosans.djlint",
+  },
+  "emmet.includeLanguages": {
+    "django-html": "html"
+  },
+  "python.analysis.typeCheckingMode": "basic",
+  "python-envs.pythonProjects": [],
+}

@@ -1,0 +1,40 @@
+{% extends "_base.html" %}
+{% load static %}
+{% block htmlclass %}
+   h-100
+{% endblock htmlclass %}
+{% block title %}
+   Confirm Delete
+{% endblock title %}
+{% block bodyclass %}
+   h-100
+{% endblock bodyclass %}
+{% block content %}
+   <div class="mid-center-container">
+      <div class="mid-center-inner">
+         <div class="text-center">
+            <div class="mb-6">
+               <h1>Confirm Deletion</h1>
+               <p>
+                  {% if delete_message %}
+                     {{ delete_message }}
+                  {% else %}
+                     Are you sure you want to delete?
+                  {% endif %}
+               </p>
+            </div>
+            <form method="post">
+               {% csrf_token %}
+               <button type="submit" class="btn btn-danger">Delete</button>
+               {% if referer %}
+                  <a href="{{ referer }}" class="btn btn-secondary">Back</a>
+               {% elif cancel_url %}
+                  <a href="{% url cancel_url %}" class="btn btn-secondary">Cancel</a>
+               {% else %}
+                  <a href="{% url 'dashboard' %}" class="btn btn-secondary">Dashboard</a>
+               {% endif %}
+            </form>
+         </div>
+      </div>
+   </div>
+{% endblock content %}

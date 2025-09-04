@@ -1,0 +1,56 @@
+{% extends "_base.html" %}
+{% load static %}
+{% block htmlclass %}
+   h-100
+{% endblock htmlclass %}
+{% block title %}
+   Login
+{% endblock title %}
+{% block bodyclass %}
+   h-100
+{% endblock bodyclass %}
+{% block content %}
+   <div class="mid-center-container">
+      <div class="mid-center-inner">
+         <div class="card">
+            <div class="card-body">
+               <!-- Display messages -->
+               {% if messages %}
+                  {% for message in messages %}
+                     <div class="alert alert-{% if message.tags == 'success' %}success{% elif message.tags == 'error' %}danger{% else %}secondary{% endif %} alert-dismissible mb-4">
+                        {{ message }}
+                        <button class="btn-close"></button>
+                     </div>
+                  {% endfor %}
+               {% endif %}
+               <!-- End Display messages -->
+               <div class="app-brand">
+                  <a href="{% url "index" %}" class="app-brand-link">
+                     <img src="{% static 'assets/img/logo.png' %}"
+                          alt="Logo"
+                          class="logo-image">
+                     <h5 class="logo-text">{{ PROJECT_NAME_SHORT }}</h5>
+                  </a>
+               </div>
+               <div class="mb-5">
+                  <h5 class="mb-1">Welcome to {{ PROJECT_NAME }}</h5>
+                  <p>Please login to your account</p>
+               </div>
+               <form action="" class="login-form mb-5" method="post">
+                  {% csrf_token %}
+                  {% include "includes/_render_form.html" %}
+                  <div class="mt-6">
+                     <button type="submit" class="btn btn-primary w-100">Login</button>
+                  </div>
+               </form>
+               <div class="d-flex align-items-center justify-content-between">
+                  {% if PUBLIC_REGISTRATION %}
+                     <a href="{% url 'user_register' %}">Register</a>
+                  {% endif %}
+                  <a href="{% url "user_forgot_password" %}">Forgot Password?</a>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+{% endblock content %}

@@ -1,0 +1,33 @@
+{% extends "_base.html" %}
+{% load static %}
+{% block htmlclass %}
+   h-100
+{% endblock htmlclass %}
+{% block title %}
+   Internal Server Error
+{% endblock title %}
+{% block bodyclass %}
+   h-100
+{% endblock bodyclass %}
+{% block content %}
+   <div class="mid-center-container">
+      <div class="mid-center-inner">
+         <div class="text-center">
+            <h1 class="fs-24 lh-22 mb-3">500</h1>
+            <h4 class="mb-2">Internal Server Error</h4>
+            <p class="mb-8">
+               {% if message %}
+                  {{ message }}
+               {% else %}
+                  Oops! Something went wrong on our end. We’re working to fix the issue. Please try again later.
+               {% endif %}
+            </p>
+            {% if referer %}
+               <a href="{{ referer }}" class="btn btn-danger">Go Back</a>
+            {% else %}
+               <a href="{% url "index" %}" class="btn btn-danger">Go Home</a>
+            {% endif %}
+         </div>
+      </div>
+   </div>
+{% endblock content %}

@@ -1,0 +1,58 @@
+{% extends "_dash_base.html" %}
+{% load static %}
+{% load common_tags %}
+{% block title %}
+   Group
+   {% if group %}- {{ group.name }}{% endif %}
+{% endblock title %}
+{% block content %}
+   <div class="card">
+      <div class="px-6 py-4">
+         <!-- Display messages -->
+         {% if messages %}
+            {% for message in messages %}
+               <div class="alert alert-{% if message.tags == 'success' %}success{% elif message.tags == 'error' %}danger{% else %}secondary{% endif %} alert-dismissible mb-4">
+                  {{ message }}
+                  <button class="btn-close"></button>
+               </div>
+            {% endfor %}
+         {% endif %}
+         <!-- End Display messages -->
+         <div class="mb-4">
+            <h4>Group</h4>
+         </div>
+         <div class="mb-3">
+            <label class="form-label mb-2">Name:</label>
+            <div class="filled-container">{{ group.name }}</div>
+         </div>
+         {# Permissions Checkboxes #}
+         <div class="mb-4">
+            <label class="form-label mb-2">Permissions</label>
+            {% if grouped_permissions %}
+               <div class="filled-container scroll-y" style="max-height: 200px">
+                  {% for content_type, perms in grouped_permissions.items %}
+                     <div class="list-unstyled {% if not forloop.last %}mb-3{% endif %}">
+                        <h6 class="fw-bold mb-1">{{ content_type|title }}</h6>
+                        <ul class="list-unstyled">
+                           {% for perm in perms %}<li>{{ perm.name|title }}</li>{% endfor %}
+                        </ul>
+                     </div>
+                  {% endfor %}
+               </div>
+            {% else %}
+               <div class="filled-container scroll-y" style="max-height: 200px">
+                  <p>No permissions assigned to this group</p>
+               </div>
+            {% endif %}
+         </div>
+         <div class="d-flex justify-content-start gap-1">
+            <a href="{% url 'user_group_edit' group.id %}" class="btn btn-primary">Edit Group</a>
+            {% if referer %}
+               <a href="{{ referer }}" class="btn btn-secondary">Back</a>
+            {% else %}
+               <a href="{% url "dashboard" %}" class="btn btn-secondary">Dashboard</a>
+            {% endif %}
+         </div>
+      </div>
+   </div>
+{% endblock content %}
