@@ -27,7 +27,7 @@ SECRET_KEY = config("SECRET_KEY")
 DEBUG = config("DEBUG", default=False, cast=bool)
 ALLOWED_HOSTS = config("ALLOWED_HOSTS", default="127.0.0.1,localhost", cast=Csv())
 
-# === Cookie Security ===
+# Cookie Security
 SESSION_COOKIE_SECURE = config("SESSION_COOKIE_SECURE", default=True, cast=bool)
 SESSION_COOKIE_HTTPONLY = True
 CSRF_COOKIE_SECURE = config("CSRF_COOKIE_SECURE", default=True, cast=bool)
@@ -38,23 +38,23 @@ CSRF_TRUSTED_ORIGINS = config(
     cast=lambda v: [s.strip() for s in v.split(",") if s.strip()],
 )
 
-# === Browser Security Headers ===
+# Browser Security Headers
 SECURE_BROWSER_XSS_FILTER = True  # Deprecated but harmless
 SECURE_CONTENT_TYPE_NOSNIFF = True
 X_FRAME_OPTIONS = "DENY"  # Prevent clickjacking
 
-# === HTTP Strict Transport Security (HSTS) ===
+# HTTP Strict Transport Security (HSTS)
 SECURE_HSTS_SECONDS = config("SECURE_HSTS_SECONDS", default=31536000)  # 1 year
 SECURE_HSTS_INCLUDE_SUBDOMAINS = True
 SECURE_HSTS_PRELOAD = True  # For inclusion in browser preload list
 
-# === SSL Redirection ===
+# SSL Redirection
 SECURE_SSL_REDIRECT = config("SECURE_SSL_REDIRECT", default=True, cast=bool)
 
-# === Referrer Policy ===
+# Referrer Policy
 SECURE_REFERRER_POLICY = "strict-origin-when-cross-origin"
 
-# === Other Security Measures ===
+# Other Security Measures
 # Forces HTTPS in cross-origin opener policy, helps isolate browsing contexts
 SECURE_CROSS_ORIGIN_OPENER_POLICY = "same-origin"
 
