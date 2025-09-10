@@ -8,6 +8,7 @@ import uuid
 from PIL import Image
 
 from .managers import CustomUserManager
+from .validators import validate_profile_picture
 
 
 class CustomUser(AbstractBaseUser, PermissionsMixin):
@@ -65,34 +66,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
                 pass  # No old instance, likely a new user
 
         if self.picture:
-            # Validate file extension
-            ext = os.path.splitext(self.picture.name)[1].lower()
-            if ext not in [".jpg", ".jpeg", ".png", ".gif"]:
-                raise ValidationError("Only JPG, PNG, and GIF images are allowed.")
-
-            # Validate file size
-            if self.picture.size > 100 * 1024:  # 100 KB
-                raise ValidationError(
-                    "Image file size must be less than or equal to 100KB."
-                )
-
-            # Check file signature and dimensions
-            try:
-                img = Image.open(self.picture)
-                img.verify()
-                width, height = img.size
-
-                if width != height:
-                    raise ValidationError(
-                        "Image must be square (width and height should be equal)."
-                    )
-                if width > 200 or height > 200:
-                    raise ValidationError(
-                        "Image dimensions must not exceed 200x200 pixels."
-                    )
-
-            except Exception:
-                raise ValidationError("Invalid image file")
+            validate_profile_picture(self.picture)
 
     def save(self, *args, **kwargs):
         """

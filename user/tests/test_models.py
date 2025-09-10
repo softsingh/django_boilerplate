@@ -100,6 +100,8 @@ def test_user_model_square_picture_validation():
         user.full_clean()
     except Exception as e:
         pytest.fail(f"Validation unexpectedly failed: {e}")
+    finally:
+        buffer.close()
 
 
 def test_user_model_non_square_picture_fails():
@@ -125,7 +127,7 @@ def test_user_model_large_picture_fails():
 
     buffer = BytesIO()
     # create a big JPEG (large dimensions + high quality)
-    img = Image.new("RGB", (1000, 1000), color="red")
+    img = Image.new("RGB", (3000, 3000), color="red")
     img.save(buffer, format="JPEG", quality=100)
     buffer.seek(0)
 
@@ -134,7 +136,7 @@ def test_user_model_large_picture_fails():
     with pytest.raises(ValidationError) as exc:
         user.full_clean()
 
-    assert "Invalid image file" in str(exc.value)
+    assert "Image file size must be less than or equal to 100KB" in str(exc.value)
 
 
 def test_user_model_bad_extension_fails():

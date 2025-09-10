@@ -1,7 +1,10 @@
-import pytest
 import uuid
+import tempfile
+import shutil
+import pytest
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
+from django.test import override_settings
 
 pytestmark = pytest.mark.django_db
 User = get_user_model()
@@ -52,3 +55,12 @@ def create_user_group():
         )
 
     return _create_user_group
+
+
+# @pytest.fixture(autouse=True, scope="session")
+# def setup_test_media():
+#     """Automatically use temp directory for all tests."""
+#     temp_dir = tempfile.mkdtemp()
+#     with override_settings(MEDIA_ROOT=temp_dir):
+#         yield
+#     shutil.rmtree(temp_dir, ignore_errors=True)

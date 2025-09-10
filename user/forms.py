@@ -12,6 +12,7 @@ from django.contrib.auth.models import Group, Permission
 from django.contrib.contenttypes.models import ContentType
 
 from .models import CustomUser
+from .validators import validate_profile_picture
 
 
 class UserAddForm(UserCreationForm):
@@ -214,6 +215,11 @@ class UserEditForm(UserChangeForm):
         self.fields["is_superuser"].label = "Superuser"
         self.fields["is_staff"].label = "Staff"
         self.fields["is_active"].label = "Active"
+
+    def clean_picture(self):
+        picture = self.cleaned_data.get("picture")
+        validate_profile_picture(picture)
+        return picture
 
 
 class CustomPasswordChangeForm(PasswordChangeForm):
