@@ -11,20 +11,19 @@ from django.contrib.auth.forms import (
 from django.contrib.auth.models import Group, Permission
 from django.contrib.contenttypes.models import ContentType
 
-from .models import CustomUser
+from .models import CustomUser, Profile
+from .validators import validate_profile_picture
 
 
 class UserAddForm(UserCreationForm):
     """Custom user add form based on django UserCreationForm"""
 
+    full_name = forms.CharField(max_length=255, required=False)
+    gender = forms.ChoiceField(choices=Profile.GENDER_CHOICES, required=False)
+
     class Meta:
         model = CustomUser
-        fields = [
-            "username",
-            "email",
-            "full_name",
-            "gender",
-        ]
+        fields = ["username", "email", "full_name", "gender"]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -48,6 +47,16 @@ class UserAddForm(UserCreationForm):
             {"class": "form-control", "placeholder": "Confirm Password"}
         )
 
+    def save(self, commit=True):
+        user = super().save(commit=commit)
+        if commit:
+            # user.save()
+            profile, created = Profile.objects.get_or_create(user=user)
+            profile.full_name = self.cleaned_data.get("full_name", "")
+            profile.gender = self.cleaned_data.get("gender", "male")
+            profile.save()
+        return user
+
 
 class UserRegisterForm(UserAddForm):
     """Custom user registration form based on django UserAddForm"""
@@ -57,7 +66,11 @@ class UserRegisterForm(UserAddForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        # Update fields
+        self.fields["full_name"].widget.attrs.update(
+            {"class": "form-control", "placeholder": "Enter Full Name"}
+        )
+        self.fields["gender"].widget.attrs.update({"class": "form-select"})
+
         self.fields["terms_conditions"].widget.attrs.update(
             {"class": "form-check-input"}
         )
@@ -155,6 +168,12 @@ class ResetPasswordForm(SetPasswordForm):
 class UserEditForm(UserChangeForm):
     """Custom user edit form based on django UserChangeForm"""
 
+    picture = forms.ImageField(required=False)
+    full_name = forms.CharField(max_length=255, required=False)
+    phone_number = forms.CharField(max_length=15, required=False)
+    gender = forms.ChoiceField(choices=Profile.GENDER_CHOICES, required=False)
+    remarks = forms.CharField(widget=forms.Textarea, required=False)
+
     groups = forms.ModelMultipleChoiceField(
         queryset=Group.objects.all(),
         widget=forms.CheckboxSelectMultiple,
@@ -170,13 +189,8 @@ class UserEditForm(UserChangeForm):
     class Meta:
         model = CustomUser
         fields = [
-            "picture",
             "username",
             "email",
-            "full_name",
-            "phone_number",
-            "gender",
-            "remarks",
             "is_superuser",
             "is_staff",
             "is_active",
@@ -189,6 +203,30 @@ class UserEditForm(UserChangeForm):
 
         if "password" in self.fields:
             self.fields.pop("password")
+        self.order_fields(
+            [
+                "picture",
+                "username",
+                "email",
+                "full_name",
+                "phone_number",
+                "gender",
+                "remarks",
+                "is_superuser",
+                "is_staff",
+                "is_active",
+                "groups",
+                "user_permissions",
+            ]
+        )
+        # Initialize profile fields if instance exists
+        if self.instance and hasattr(self.instance, "profile"):
+            profile = self.instance.profile
+            self.fields["full_name"].initial = profile.full_name
+            self.fields["phone_number"].initial = profile.phone_number
+            self.fields["gender"].initial = profile.gender
+            self.fields["picture"].initial = profile.picture
+            self.fields["remarks"].initial = profile.remarks
 
         self.fields["username"].label = "Username (Login ID)"
         self.fields["username"].widget.attrs.update(
@@ -214,6 +252,30 @@ class UserEditForm(UserChangeForm):
         self.fields["is_superuser"].label = "Superuser"
         self.fields["is_staff"].label = "Staff"
         self.fields["is_active"].label = "Active"
+
+    def clean_picture(self):
+        picture = self.cleaned_data.get("picture")
+        validate_profile_picture(picture)
+        return picture
+
+    def save(self, commit=True):
+        user = super().save(commit=commit)
+        if commit:
+            profile, created = Profile.objects.get_or_create(user=user)
+            profile.full_name = self.cleaned_data.get("full_name", "")
+            profile.phone_number = self.cleaned_data.get("phone_number", "")
+            profile.gender = self.cleaned_data.get("gender", "male")
+            profile.remarks = self.cleaned_data.get("remarks", "")
+
+            # Handle picture upload
+            picture = self.cleaned_data.get("picture")
+            if picture:
+                profile.picture = picture
+            elif self.data.get("picture-clear"):
+                profile.picture = None
+
+            profile.save()
+        return user
 
 
 class CustomPasswordChangeForm(PasswordChangeForm):

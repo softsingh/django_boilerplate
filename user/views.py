@@ -4,7 +4,6 @@ from django.utils.timezone import localtime
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse, reverse_lazy
 from django.contrib.auth.models import Group, Permission
-from django.contrib.contenttypes.models import ContentType
 
 from django.contrib.auth.views import (
     LoginView,
@@ -45,9 +44,7 @@ from .forms import (
     UserGroupAddForm,
 )
 
-from django.db.models import Q
-
-from .models import CustomUser
+from .models import CustomUser, Profile
 from common.mixins import MyPermissionRequiredMixin
 from . import utils
 
@@ -178,7 +175,7 @@ class EmailVerificationView(View):
             user = None
 
         if user and default_token_generator.check_token(user, token):
-            user.email_verified = True
+            user.profile.email_verified = True
             user.save()
             # Set a one-time flag in session
             request.session["email_verified_success"] = True
@@ -215,7 +212,7 @@ class UserLoginView(LoginView):
     def form_valid(self, form):
 
         if settings.EMAIL_VERIFICATION_REQUIRED:
-            if not form.get_user().email_verified:  # type: ignore
+            if not form.get_user().profile.email_verified:  # type: ignore
                 return redirect("request_email_verification")
 
         remember_me = form.cleaned_data.get("remember_me")
@@ -370,9 +367,9 @@ class UserListView(
         role = self.request.GET.get("role", "")
         query = self.request.GET.get("q", "")
         queryset = (
-            CustomUser.objects.select_related()
+            CustomUser.objects.select_related("profile")
             .prefetch_related("groups", "user_permissions")
-            .order_by("full_name")
+            .order_by("profile__full_name")
         )
         queryset = utils.get_filtered_users(
             queryset, status=status, role=role, query=query
@@ -405,7 +402,7 @@ class UserListExportAsXlsxView(LoginRequiredMixin, MyPermissionRequiredMixin, Vi
         status = self.request.GET.get("status", "")
         role = self.request.GET.get("role", "")
         query = self.request.GET.get("q", "")
-        users = CustomUser.objects.order_by("full_name")
+        users = CustomUser.objects.order_by("profile__full_name")
         users = utils.get_filtered_users(users, status=status, role=role, query=query)
 
         wb = Workbook()
@@ -415,12 +412,12 @@ class UserListExportAsXlsxView(LoginRequiredMixin, MyPermissionRequiredMixin, Vi
         for user in users:
             ws.append(
                 [
-                    user.full_name,
+                    user.profile.full_name,
                     user.is_active and "Active" or "Disabled",
                     user.is_superuser and "Admin" or "User",
                     user.email,
-                    user.phone_number,
-                    user.gender,
+                    user.profile.phone_number,
+                    user.profile.gender,
                     localtime(user.date_joined).strftime("%d-%m-%Y %I:%M:%S %p %Z"),
                 ]
             )
@@ -443,7 +440,7 @@ class UserListExportAsCsvView(LoginRequiredMixin, MyPermissionRequiredMixin, Vie
         status = self.request.GET.get("status", "")
         role = self.request.GET.get("role", "")
         query = self.request.GET.get("q", "")
-        users = CustomUser.objects.order_by("full_name")
+        users = CustomUser.objects.order_by("profile__full_name")
         users = utils.get_filtered_users(users, status=status, role=role, query=query)
 
         response = HttpResponse(content_type="text/csv")
@@ -457,12 +454,12 @@ class UserListExportAsCsvView(LoginRequiredMixin, MyPermissionRequiredMixin, Vie
         for user in users:
             writer.writerow(
                 [
-                    user.full_name,
+                    user.profile.full_name,
                     "Active" if user.is_active else "Disabled",
                     "Admin" if user.is_superuser else "User",
                     user.email,
-                    user.phone_number,
-                    user.gender,
+                    user.profile.phone_number,
+                    user.profile.gender,
                     localtime(user.date_joined).strftime("%d-%m-%Y %I:%M:%S %p %Z"),
                 ]
             )
@@ -481,7 +478,7 @@ class UserListPrintView(LoginRequiredMixin, MyPermissionRequiredMixin, TemplateV
         status = self.request.GET.get("status", "")
         role = self.request.GET.get("role", "")
         query = self.request.GET.get("q", "")
-        users = CustomUser.objects.order_by("full_name")
+        users = CustomUser.objects.order_by("profile__full_name")
         context["users"] = utils.get_filtered_users(
             users, status=status, role=role, query=query
         )
@@ -497,7 +494,7 @@ class UserListCopyView(LoginRequiredMixin, MyPermissionRequiredMixin, View):
         status = self.request.GET.get("status", "")
         role = self.request.GET.get("role", "")
         query = self.request.GET.get("q", "")
-        users = CustomUser.objects.order_by("full_name")
+        users = CustomUser.objects.order_by("profile__full_name")
         users = utils.get_filtered_users(users, status=status, role=role, query=query)
 
         # Tab-separated values for copy-paste
@@ -506,12 +503,12 @@ class UserListCopyView(LoginRequiredMixin, MyPermissionRequiredMixin, View):
         for user in users:
             line = "\t".join(
                 [
-                    user.full_name or "",
+                    user.profile.full_name or "",
                     "Active" if user.is_active else "Disabled",
                     "Admin" if user.is_superuser else "User",
                     user.email or "",
-                    user.phone_number or "",
-                    user.gender or "",
+                    user.profile.phone_number or "",
+                    user.profile.gender or "",
                     localtime(user.date_joined).strftime("%d-%m-%Y %I:%M:%S %p %Z")
                     or "",
                 ]
@@ -718,7 +715,7 @@ class UserDeleteView(LoginRequiredMixin, MyPermissionRequiredMixin, DeleteView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["delete_message"] = (
-            f'Are you sure you want to delete the "{self.get_object().full_name}" ?'
+            f'Are you sure you want to delete the "{self.get_object().profile.full_name}" ?'
         )
         context["cancel_url"] = "user_list"
         referer = self.request.META.get("HTTP_REFERER")
@@ -727,7 +724,9 @@ class UserDeleteView(LoginRequiredMixin, MyPermissionRequiredMixin, DeleteView):
 
     def post(self, request, *args, **kwargs):
         self.object = self.get_object()
-        messages.success(request, f'User "{self.object.full_name}" has been deleted.')
+        messages.success(
+            request, f'User "{self.object.profile.full_name}" has been deleted.'
+        )
         return super().post(request, *args, **kwargs)
 
     def test_func(self):

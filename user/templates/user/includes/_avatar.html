@@ -1,13 +1,13 @@
 {% load common_tags %}
-{% if userobj.picture %}
+{% if userobj.profile.picture %}
     <div class="avatar">
         <img class="rounded-circle bg-primary-light-80"
-             src="/media/{{ userobj.picture }}"
+             src="/media/{{ userobj.profile.picture }}"
              alt="Avatar"
              width="40px">
     </div>
 {% else %}
     <div class="avatar">
-        <span class="avatar-initial rounded-circle bg-label-primary">{{ userobj.full_name|initials }}</span>
+        <span class="avatar-initial rounded-circle bg-label-primary">{{ userobj.profile.full_name|initials }}</span>
     </div>
 {% endif %}

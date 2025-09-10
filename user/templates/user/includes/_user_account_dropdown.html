@@ -6,7 +6,7 @@
          <div class="d-flex">
             <div class="me-3">{% include "user/includes/_avatar.html" with userobj=user %}</div>
             <div>
-               <h6 class="fs-4 mb-0">{{ user.full_name }}</h6>
+               <h6 class="fs-4 mb-0">{{ user.profile.full_name }}</h6>
                <small class="text-muted">{% include "user/includes/_role.html" with userobj=user %}</small>
             </div>
          </div>

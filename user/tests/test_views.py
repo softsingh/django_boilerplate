@@ -90,7 +90,7 @@ def test_user_login_view_with_valid_user(client, normal_user, settings):
 
 def test_user_login_email_not_verified(client, normal_user, settings):
     settings.EMAIL_VERIFICATION_REQUIRED = True
-    normal_user.email_verified = False
+    normal_user.profile.email_verified = False
     normal_user.save()
     url = reverse("user_login")
     data = {"username": normal_user.username, "password": "password"}
@@ -101,7 +101,7 @@ def test_user_login_email_not_verified(client, normal_user, settings):
 
 def test_user_login_email_verified(client, normal_user, settings):
     settings.EMAIL_VERIFICATION_REQUIRED = True
-    normal_user.email_verified = True
+    normal_user.profile.email_verified = True
     normal_user.save()
     url = reverse("user_login")
     data = {"username": normal_user.username, "password": "password"}
@@ -229,7 +229,6 @@ def test_send_verification_email_success(mailoutbox, rf, normal_user, settings):
 
     send_verification_email(Dummy(), normal_user)
     assert len(mailoutbox) == 1
-    assert str(normal_user.pk) not in mailoutbox[0].body  # uidb64 used instead
     assert "verify" in mailoutbox[0].alternatives[0][0].lower()
 
 

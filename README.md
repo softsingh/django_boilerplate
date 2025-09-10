@@ -30,3 +30,26 @@ Run Server
 <pre lang="markdown">
 $ py manage.py runserver
 </pre>
+
+## Testing
+Pytest is used for testing the project
+
+Test entire project
+<pre lang="markdown">
+$ pytest
+</pre>
+
+Test with key (all tests that contain the text)
+<pre lang="markdown">
+$ pytest -k "test_user_login_view"
+</pre>
+
+All tests inside specific file
+<pre lang="markdown">
+$ pytest user/tests/test_models.py
+</pre>
+
+Save coverage report as html
+<pre lang="markdown">
+$ pytest --cov=. --cov-report=html
+</pre>

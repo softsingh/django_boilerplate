@@ -20,9 +20,9 @@
                {% for field in form %}
                   {% if field.field.widget.input_type == "file" %}
                      <div class="d-flex align-items-start align-items-sm-center gap-6 py-5 border-bottom">
-                        {% if form.instance.picture %}
+                        {% if form.instance.profile.picture %}
                            <img class="d-block rounded bg-primary-light-80"
-                                src="{{ form.instance.picture.url }}"
+                                src="{{ form.instance.profile.picture.url }}"
                                 id="uploadedAvatar"
                                 alt="Avatar"
                                 width="100px">
@@ -195,7 +195,7 @@
                       min="10"
                       max="1000"
                       step="10"
-                      value="200"
+                      value="300"
                       class="form-control form-control-sm d-inline-block"
                       style="width: 80px">
             </label>
@@ -298,7 +298,7 @@
             ready() {
             const img = cropper.image;
             originalInfoDisplay.textContent = `Original: ${img.naturalWidth} x ${img.naturalHeight}px | ${Math.round(file.size / 1024)} KB`;
-            if (img.naturalWidth < 200 || img.naturalHeight < 200) {
+            if (img.naturalWidth < 300 || img.naturalHeight < 300) {
                outputWidth.value = Math.min(img.naturalWidth, img.naturalHeight);
             }
             outputWidth.max = Math.min(img.naturalWidth, img.naturalHeight);

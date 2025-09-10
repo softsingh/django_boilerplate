@@ -25,9 +25,7 @@ def test_create_user():
 
 
 def test_create_user_with_duplicate_username(normal_user):
-    with pytest.raises(
-        ValidationError, match="Profile with this Username already exists"
-    ):
+    with pytest.raises(ValidationError, match="User with this Username already exists"):
         User.objects.create_user(
             username=normal_user.username,
             email="a" + normal_user.email,
@@ -36,7 +34,7 @@ def test_create_user_with_duplicate_username(normal_user):
 
 
 def test_create_user_with_duplicate_email(normal_user):
-    with pytest.raises(ValidationError, match="Profile with this Email already exists"):
+    with pytest.raises(ValidationError, match="User with this Email already exists"):
         User.objects.create_user(
             username="a" + normal_user.username,
             email=normal_user.email,
@@ -86,65 +84,59 @@ def test_create_superuser_with_is_superuser_false():
         )
 
 
-def test_user_model_square_picture_validation():
-    user = CustomUser(username="test", email="test@example.com", password="pass")
-
+def test_user_model_square_picture_validation(normal_user):
     buffer = BytesIO()
     img = Image.new("RGB", (100, 100), color="blue")
     img.save(buffer, format="JPEG")
     buffer.seek(0)
-
-    user.picture.save("pic.jpg", ContentFile(buffer.read()), save=False)
+    normal_user.profile.picture.save("pic.jpg", ContentFile(buffer.read()), save=False)
 
     try:
-        user.full_clean()
+        normal_user.profile.full_clean()
+        assert normal_user.profile.picture is not None
     except Exception as e:
         pytest.fail(f"Validation unexpectedly failed: {e}")
+    finally:
+        buffer.close()
 
 
-def test_user_model_non_square_picture_fails():
-    user = CustomUser(username="test", email="test@example.com", password="pass")
-
+def test_user_model_non_square_picture_fails(normal_user):
     buffer = BytesIO()
     img = Image.new("RGBA", (100, 200))  # non-square
     img.save(buffer, format="PNG")
     buffer.seek(0)
-
-    user.picture.save("pic.png", ContentFile(buffer.read()), save=False)
+    normal_user.profile.picture.save("pic.png", ContentFile(buffer.read()), save=False)
 
     with pytest.raises(ValidationError) as exc:
-        user.full_clean()
+        normal_user.profile.full_clean()
 
     # Depending on img.verify vs img.load in your model
     assert "Invalid image file" in str(exc.value) or "square" in str(exc.value)
 
 
-def test_user_model_large_picture_fails():
+def test_user_model_large_picture_fails(normal_user):
     """Image > 100KB should fail validation"""
-    user = CustomUser(username="big", email="big@example.com", password="pass")
 
     buffer = BytesIO()
     # create a big JPEG (large dimensions + high quality)
-    img = Image.new("RGB", (1000, 1000), color="red")
+    img = Image.new("RGB", (3000, 3000), color="red")
     img.save(buffer, format="JPEG", quality=100)
     buffer.seek(0)
-
-    user.picture.save("big.jpg", ContentFile(buffer.read()), save=False)
+    normal_user.profile.picture.save("big.jpg", ContentFile(buffer.read()), save=False)
 
     with pytest.raises(ValidationError) as exc:
-        user.full_clean()
+        normal_user.profile.full_clean()
 
-    assert "Invalid image file" in str(exc.value)
+    assert "Image file size must be less than or equal to 100KB" in str(exc.value)
 
 
-def test_user_model_bad_extension_fails():
+def test_user_model_bad_extension_fails(normal_user):
     """Non-image extension should fail validation"""
-    user = CustomUser(username="bad", email="bad@example.com", password="pass")
 
     fake_file = ContentFile(b"not an image")
-    user.picture.save("bad.txt", fake_file, save=False)
+    normal_user.profile.picture.save("bad.txt", fake_file, save=False)
 
     with pytest.raises(ValidationError) as exc:
-        user.full_clean()
+        normal_user.profile.full_clean()
 
     assert "Only JPG, PNG, and GIF images are allowed." in str(exc.value)

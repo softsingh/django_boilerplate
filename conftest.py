@@ -1,7 +1,11 @@
-import pytest
 import uuid
+import tempfile
+import shutil
+import pytest
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
+from django.test import override_settings
+
 
 pytestmark = pytest.mark.django_db
 User = get_user_model()
@@ -18,14 +22,17 @@ def normal_user():
 
 
 @pytest.fixture
-# @pytest.mark.django_db
 def create_user():
     def make_user(**kwargs):
-        return User.objects.create_user(
+        import uuid
+
+        user = User.objects.create_user(
             username=kwargs.get("username", f"user_{uuid.uuid4().hex[:6]}"),
             email=kwargs.get("email", f"user_{uuid.uuid4().hex[:6]}@example.com"),
             password=kwargs.get("password", "password"),
         )
+
+        return user
 
     return make_user
 
@@ -52,3 +59,12 @@ def create_user_group():
         )
 
     return _create_user_group
+
+
+@pytest.fixture(autouse=True, scope="session")
+def setup_test_media():
+    """Automatically use temp directory for all tests."""
+    temp_dir = tempfile.mkdtemp()
+    with override_settings(MEDIA_ROOT=temp_dir):
+        yield
+    shutil.rmtree(temp_dir, ignore_errors=True)

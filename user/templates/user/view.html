@@ -18,9 +18,9 @@
          {% endif %}
          <!-- End Display messages -->
          <div class="d-flex align-items-center gap-6 pb-5 border-bottom">
-            {% if userobj.picture %}
+            {% if userobj.profile.picture %}
                <img class="d-block rounded bg-primary-light-80"
-                    src="/media/{{ userobj.picture }}"
+                    src="/media/{{ userobj.profile.picture }}"
                     alt="Avatar"
                     width="100px">
             {% else %}
@@ -31,7 +31,7 @@
                     width="100px">
             {% endif %}
             <div>
-               <h5>{{ userobj.full_name }}</h5>
+               <h5>{{ userobj.profile.full_name }}</h5>
                <small class="text-muted">{% include "user/includes/_role.html" %}</small>
             </div>
          </div>
@@ -58,7 +58,13 @@
                <label class="form-label">Name</label>
             </div>
             <div class="col-sm-12 col-lg-9 fw-500">
-               <div class="filled-container">{{ userobj.full_name }}</div>
+               <div class="filled-container">
+                  {% if userobj.profile.full_name %}
+                     {{ userobj.profile.full_name }}
+                  {% else %}
+                     &nbsp;
+                  {% endif %}
+               </div>
             </div>
          </div>
          <div class="row g-2 mb-4">
@@ -66,7 +72,13 @@
                <label class="form-label">Phone Number</label>
             </div>
             <div class="col-sm-12 col-lg-9 fw-500">
-               <div class="filled-container">{{ userobj.phone_number }}</div>
+               <div class="filled-container">
+                  {% if userobj.profile.phone_number %}
+                     {{ userobj.profile.phone_number }}
+                  {% else %}
+                     &nbsp;
+                  {% endif %}
+               </div>
             </div>
          </div>
          <div class="row g-2 mb-4">
@@ -74,7 +86,7 @@
                <label class="form-label">Gender</label>
             </div>
             <div class="col-sm-12 col-lg-9 fw-500">
-               <div class="filled-container">{{ userobj.gender|title }}</div>
+               <div class="filled-container">{{ userobj.profile.gender|title }}</div>
             </div>
          </div>
          <div class="row g-2 mb-4">
@@ -99,8 +111,8 @@
             </div>
             <div class="col-sm-12 col-lg-9 fw-500">
                <div class="filled-container">
-                  {% if userobj.remarks %}
-                     {{ userobj.remarks }}
+                  {% if userobj.profile.remarks %}
+                     {{ userobj.profile.remarks }}
                   {% else %}
                      &nbsp;
                   {% endif %}

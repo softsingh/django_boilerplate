@@ -75,10 +75,10 @@ def get_filtered_users(queryset, status="", role="", query=""):
     if query:
         filters &= (
             Q(username__icontains=query)
-            | Q(full_name__icontains=query)
+            | Q(profile__full_name__icontains=query)
             | Q(email__icontains=query)
-            | Q(phone_number__icontains=query)
-            | Q(remarks__icontains=query)
+            | Q(profile__phone_number__icontains=query)
+            | Q(profile__remarks__icontains=query)
         )
 
     return queryset.filter(filters)
