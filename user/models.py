@@ -1,6 +1,5 @@
 from django.db import models
-from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
-from django.core.exceptions import ValidationError
+from django.contrib.auth.models import AbstractUser
 from django.core.files.base import ContentFile
 
 import os
@@ -11,16 +10,21 @@ from .managers import CustomUserManager
 from .validators import validate_profile_picture
 
 
-class CustomUser(AbstractBaseUser, PermissionsMixin):
+class CustomUser(AbstractUser):
     """Lightweight custom user model"""
+
+    # Drop fields we don’t need
+    first_name = None
+    last_name = None
 
     username = models.CharField(max_length=255, unique=True)
     email = models.EmailField(unique=True)
-    is_active = models.BooleanField(default=True)
-    is_staff = models.BooleanField(default=False)
-    is_superuser = models.BooleanField(default=False)
-    date_joined = models.DateTimeField(auto_now_add=True)
-    last_login = models.DateTimeField(auto_now=True)
+
+    # is_active = models.BooleanField(default=True)
+    # is_staff = models.BooleanField(default=False)
+    # is_superuser = models.BooleanField(default=False)
+    # date_joined = models.DateTimeField(auto_now_add=True)
+    # last_login = models.DateTimeField(auto_now=True)
 
     USERNAME_FIELD = "username"
     REQUIRED_FIELDS = ["email"]
@@ -119,8 +123,8 @@ class Profile(models.Model):
         # if self.picture:
         #     img = Image.open(self.picture.path)
 
-        #     if img.height > 200 or img.width > 200:
-        #         img_size = (200, 200)
+        #     if img.height > 300 or img.width > 300:
+        #         img_size = (300, 300)
         #         img.thumbnail(img_size)
         #         img.save(self.picture.path)
 
