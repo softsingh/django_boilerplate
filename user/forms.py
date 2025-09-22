@@ -13,13 +13,14 @@ from django.contrib.contenttypes.models import ContentType
 
 from .models import CustomUser, Profile
 from .validators import validate_profile_picture
+from common.choices import Gender
 
 
 class UserAddForm(UserCreationForm):
     """Custom user add form based on django UserCreationForm"""
 
     full_name = forms.CharField(max_length=255, required=False)
-    gender = forms.ChoiceField(choices=Profile.GENDER_CHOICES, required=False)
+    gender = forms.ChoiceField(choices=Gender.choices, required=False)
 
     class Meta:
         model = CustomUser
@@ -171,7 +172,7 @@ class UserEditForm(UserChangeForm):
     picture = forms.ImageField(required=False)
     full_name = forms.CharField(max_length=255, required=False)
     phone_number = forms.CharField(max_length=15, required=False)
-    gender = forms.ChoiceField(choices=Profile.GENDER_CHOICES, required=False)
+    gender = forms.ChoiceField(choices=Gender.choices, required=False)
     remarks = forms.CharField(widget=forms.Textarea, required=False)
 
     groups = forms.ModelMultipleChoiceField(

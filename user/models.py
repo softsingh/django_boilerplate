@@ -8,6 +8,7 @@ from PIL import Image
 
 from .managers import CustomUserManager
 from .validators import validate_profile_picture
+from common.choices import Gender
 
 
 class CustomUser(AbstractUser):
@@ -54,18 +55,22 @@ class CustomUser(AbstractUser):
 class Profile(models.Model):
     """Extended profile information"""
 
-    GENDER_CHOICES = [
-        ("male", "Male"),
-        ("female", "Female"),
-        ("third_gender", "Third Gender"),
-    ]
+    # GENDER_CHOICES = [
+    #     ("male", "Male"),
+    #     ("female", "Female"),
+    #     ("third_gender", "Third Gender"),
+    # ]
 
     user = models.OneToOneField(
         CustomUser, on_delete=models.CASCADE, related_name="profile"
     )
     full_name = models.CharField(max_length=255, blank=True)
     phone_number = models.CharField(max_length=15, unique=True, blank=True, null=True)
-    gender = models.CharField(max_length=12, choices=GENDER_CHOICES, default="male")
+    gender = models.CharField(
+        max_length=12,
+        choices=Gender.choices,
+        default=Gender.MALE,
+    )
     picture = models.ImageField(upload_to="avatars", blank=True, null=True)
     email_verified = models.BooleanField(default=False)
     remarks = models.TextField(blank=True, null=True)
