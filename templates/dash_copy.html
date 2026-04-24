@@ -1,0 +1,37 @@
+{% extends "_dash_base.html" %}
+{% block title %}
+    {% if title %}
+        {{ title }}
+    {% else %}
+        List Copy
+    {% endif %}
+{% endblock title %}
+{% block content %}
+    <div class="card mb-6">
+        <div class="card-body">
+            <div class="d-flex align-items-center justify-content-between gap-2 mb-4">
+                <h4>
+                    {% if header %}
+                        {{ header }}
+                    {% else %}
+                        List Copy
+                    {% endif %}
+                </h4>
+                <button class="btn btn-sm btn-primary" onclick="copyToClipboard()">Copy</button>
+            </div>
+            <textarea id="txtData" class="form-control" rows="20">{{ data }}</textarea>
+        </div>
+        <script>
+         function copyToClipboard() {
+            const textarea = document.getElementById("txtData");
+            navigator.clipboard.writeText(textarea.value)
+               .then(() => {
+                     alert("Copied to clipboard!");
+               })
+               .catch(err => {
+                     alert("Failed to copy: " + err);
+               });
+         }
+        </script>
+    </div>
+{% endblock content %}

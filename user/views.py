@@ -479,6 +479,9 @@ class UserListPrintView(LoginRequiredMixin, MyPermissionRequiredMixin, TemplateV
         role = self.request.GET.get("role", "")
         query = self.request.GET.get("q", "")
         users = CustomUser.objects.order_by("profile__full_name")
+
+        context["title"] = "Print User List"
+        context["header"] = "User List"
         context["users"] = utils.get_filtered_users(
             users, status=status, role=role, query=query
         )
@@ -508,7 +511,7 @@ class UserListCopyView(LoginRequiredMixin, MyPermissionRequiredMixin, View):
                     "Admin" if user.is_superuser else "User",
                     user.email or "",
                     user.profile.phone_number or "",
-                    user.profile.gender or "",
+                    user.profile.gender.title() or "",
                     localtime(user.date_joined).strftime("%d-%m-%Y %I:%M:%S %p %Z")
                     or "",
                 ]
@@ -517,7 +520,15 @@ class UserListCopyView(LoginRequiredMixin, MyPermissionRequiredMixin, View):
 
         user_data = "\n".join(lines)
 
-        return render(request, "user/list_copy.html", {"user_data": user_data})
+        return render(
+            request,
+            "dash_copy.html",
+            {
+                "data": user_data,
+                "title": "Copy User List",
+                "header": "User List",
+            },
+        )
 
 
 class UserView(
@@ -900,6 +911,8 @@ class UserGroupListPrintView(
         if query:
             queryset = queryset.filter(name__icontains=query)
 
+        context["title"] = "Print Group List"
+        context["header"] = "Group List"
         context["groups"] = queryset
         return context
 
@@ -933,7 +946,15 @@ class UserGroupListCopyView(LoginRequiredMixin, MyPermissionRequiredMixin, View)
 
         group_data = "\n".join(lines)
 
-        return render(request, "user/group_list_copy.html", {"group_data": group_data})
+        return render(
+            request,
+            "dash_copy.html",
+            {
+                "data": group_data,
+                "title": "Copy Group List",
+                "header": "Group List",
+            },
+        )
 
 
 class UserGroupAddView(LoginRequiredMixin, MyPermissionRequiredMixin, CreateView):

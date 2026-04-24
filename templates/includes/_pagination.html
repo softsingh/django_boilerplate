@@ -1,0 +1,87 @@
+{% if is_paginated %}
+    <div class="row px-6 mb-5">
+        <div class="col-sm-12 col-lg-6">
+            <div class="dash-table-pagination-info text-muted">
+                Showing {{ page_obj.start_index }} to {{ page_obj.end_index }} of {{ page_obj.paginator.count }} Items
+            </div>
+        </div>
+        <div class="col-sm-12 col-lg-6">
+            <div class="dash-table-pagination-container">
+                <ul class="pagination">
+                    {% if page_obj.has_previous %}
+                        <li class="page-item page-item-first">
+                            <a href="?page=1{% for key, val in query_params.items %}{% if key != 'page' %}&{{ key }}={{ val }}{% endif %}{% endfor %}"
+                               class="page-link">
+                                <i class="bx bx-first-page bx-18px"></i>
+                            </a>
+                        </li>
+                        <li class="page-item page-item-previous">
+                            <a href="?page={{ page_obj.previous_page_number }}{% for key, val in query_params.items %}{% if key != 'page' %}&{{ key }}={{ val }}{% endif %}{% endfor %}"
+                               class="page-link">
+                                <i class="bx bx-chevron-left bx-18px"></i>
+                            </a>
+                        </li>
+                    {% else %}
+                        <li class="page-item page-item-first disabled">
+                            <a href="#" class="page-link">
+                                <i class="bx bx-first-page bx-18px"></i>
+                            </a>
+                        </li>
+                        <li class="page-item page-item-previous disabled">
+                            <a href="#" class="page-link">
+                                <i class="bx bx-chevron-left bx-18px"></i>
+                            </a>
+                        </li>
+                    {% endif %}
+                    {% if page_obj.paginator.num_pages > 4 %}
+                        {% for i in page_obj.paginator.page_range %}
+                            {% if i == page_obj.number %}
+                                <li class="page-item {% if i == page_obj.number %}active{% endif %}">
+                                    <a href="?page={{ i }}{% for key, val in query_params.items %}{% if key != 'page' %}&{{ key }}={{ val }}{% endif %}{% endfor %}"
+                                       class="page-link">{{ i }}</a>
+                                </li>
+                            {% elif i == page_obj.number|add:'-3' or i == page_obj.number|add:'3' %}
+                                <li class="page-item">
+                                    <a href="?page={{ i }}{% for key, val in query_params.items %}{% if key != 'page' %}&{{ key }}={{ val }}{% endif %}{% endfor %}"
+                                       class="page-link"><i class="bx bx-dots-horizontal-rounded"></i></a>
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+                    {% else %}
+                        {% for i in page_obj.paginator.page_range %}
+                            <li class="page-item {% if i == page_obj.number %}active{% endif %}">
+                                <a href="?page={{ i }}{% for key, val in query_params.items %}{% if key != 'page' %}&{{ key }}={{ val }}{% endif %}{% endfor %}"
+                                   class="page-link">{{ i }}</a>
+                            </li>
+                        {% endfor %}
+                    {% endif %}
+                    {% if page_obj.has_next %}
+                        <li class="page-item page-item-next">
+                            <a href="?page={{ page_obj.next_page_number }}{% for key, val in query_params.items %}{% if key != 'page' %}&{{ key }}={{ val }}{% endif %}{% endfor %}"
+                               class="page-link">
+                                <i class="bx bx-chevron-right bx-18px"></i>
+                            </a>
+                        </li>
+                        <li class="page-item page-item-last">
+                            <a href="?page={{ page_obj.paginator.num_pages }}{% for key, val in query_params.items %}{% if key != 'page' %}&{{ key }}={{ val }}{% endif %}{% endfor %}"
+                               class="page-link">
+                                <i class="bx bx-last-page bx-18px"></i>
+                            </a>
+                        </li>
+                    {% else %}
+                        <li class="page-item page-item-next disabled">
+                            <a href="#" class="page-link">
+                                <i class="bx bx-chevron-right bx-18px"></i>
+                            </a>
+                        </li>
+                        <li class="page-item page-item-last disabled">
+                            <a href="#" class="page-link">
+                                <i class="bx bx-last-page bx-18px"></i>
+                            </a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </div>
+{% endif %}
