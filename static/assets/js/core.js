@@ -149,7 +149,9 @@ modalDialogs.forEach((modalDialog) =>
   modalDialog.addEventListener('click', (event) => {
     if (event.target === modalDialog) {
       const modal = modalDialog.closest('.modal');
-      hideModal(modal);
+      if (!staticModal(modal)) {
+        hideModal(modal);
+      }
       event.stopPropagation();
     }
   })
@@ -159,11 +161,18 @@ modalDialogs.forEach((modalDialog) =>
 modals.forEach((modal) =>
   modal.addEventListener('click', (event) => {
     if (event.target === modal) {
-      hideModal(modal);
+      if (!staticModal(modal)) {
+        hideModal(modal);
+      }
       event.stopPropagation();
     }
   })
 );
+
+// Returns if modal is static
+function staticModal(modal) {
+  return modal.getAttribute('data-backdrop') === 'static';
+}
 
 function showModal(modal) {
   const backdrop = document.createElement('div');
@@ -431,6 +440,21 @@ paginationOverflows?.forEach((paginationOverflow) => {
     }
   }
 });
+
+/////////////////// Search ////////////////////
+document.querySelectorAll('.search-field').forEach(field => {
+  const input = field.querySelector('.search-field-input');
+  const clear = field.querySelector('.search-field-clear');
+
+  clear.addEventListener('click', () => {
+    input.value = '';
+    input.focus();
+
+    // optional: trigger input event for live search
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+  });
+});
+
 
 /////////////////// Sidebar ////////////////////
 

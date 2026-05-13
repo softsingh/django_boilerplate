@@ -83,15 +83,14 @@
          </div>
          <div class="col-12 col-sm-6">
             <form method="get" id="formSearchFromGroups">
-               <div class="search-close-wrapper">
+               <div class="search-field">
                   <input type="search"
                          placeholder="Search from Groups"
-                         class="form-control search-input"
+                         class="form-control search-field-input"
                          name="q"
-                         id="inputSeachFromGroups"
+                         id="inputSearchFromGroups"
                          value="{{ request.GET.q|default:'' }}">
-                  <i class="bx bx-x bx-sm search-closer cursor-pointer"
-                     onclick="document.getElementById('inputSeachFromGroups').value=''; document.getElementById('formSearchFromGroups').submit();"></i>
+                  <i class="bx bx-x bx-sm search-field-clear"></i>
                </div>
                <input type="hidden" name="page_size" value="{{ current_page_size }}">
             </form>
