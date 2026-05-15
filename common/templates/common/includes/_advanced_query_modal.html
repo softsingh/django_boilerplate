@@ -1,0 +1,40 @@
+<div class="modal"
+     id="{{ modal_id|default:'modalAdvancedQuery' }}"
+     data-backdrop="static">
+    <div class="modal-dialog modal-dialog-scrollable modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="d-flex align-items-center justify-content-between w-100">
+                    <h5 class="mb-0">{{ modal_title|default:"Advanced Query Composer" }}</h5>
+                    <button class="btn-close js-modal-close" data-dismiss="modal"></button>
+                </div>
+            </div>
+            <div class="px-6 mb-4">
+                <p>Build a structured query. Clicking Apply will store the generated query in the search box.</p>
+            </div>
+            <div class="modal-body">
+                <div id="{{ modal_id|default:'modalAdvancedQuery' }}_rows"
+                     class="d-flex flex-column gap-3"></div>
+                <div class="mt-3 d-flex align-items-center gap-2">
+                    <button type="button" class="btn btn-secondary btn-sm js-aq-add-row">Add Filter</button>
+                    <button type="button" class="btn btn-danger btn-sm js-aq-clear-rows">Clear All</button>
+                </div>
+                <div class="mt-5">
+                    <label class="form-label mb-2">Generated Query</label>
+                    <textarea id="{{ modal_id|default:'modalAdvancedQuery' }}_generated"
+                              class="form-control bg-secondary-light-93"
+                              rows="3"
+                              readonly></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="d-flex align-items-center gap-2">
+                    <button type="button" class="btn btn-primary js-aq-apply">Apply</button>
+                    <button type="button"
+                            class="btn btn-secondary js-modal-close"
+                            data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

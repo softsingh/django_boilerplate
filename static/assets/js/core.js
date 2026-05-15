@@ -442,19 +442,40 @@ paginationOverflows?.forEach((paginationOverflow) => {
 });
 
 /////////////////// Search ////////////////////
-document.querySelectorAll('.search-field').forEach(field => {
-  const input = field.querySelector('.search-field-input');
-  const clear = field.querySelector('.search-field-clear');
+document.querySelectorAll('.search-field').forEach(searchField => {
+  const input = searchField.querySelector('.search-field-input');
+  const clearButton = searchField.querySelector('.search-field-clear');
 
-  clear.addEventListener('click', () => {
+  if (!input || !clearButton) return;
+
+  clearButton.addEventListener('click', (event) => {
+    event.preventDefault();
+
+    // Prevent clear/submit if already empty
+    if (!input.value.trim()) {
+      input.focus();
+      return;
+    }
+
     input.value = '';
-    input.focus();
+    // if not data-clear-focus="false"
+    if (clearButton.dataset.clearFocus !== 'false') {
+      input.focus();
+    }
 
-    // optional: trigger input event for live search
+    // Trigger input event (useful for live search)
     input.dispatchEvent(new Event('input', { bubbles: true }));
+
+    // Optional form submit if data-clear-submit="true"
+    if (clearButton.dataset.clearSubmit === 'true') {
+      const form = searchField.closest('form');
+
+      if (form) {
+        form.requestSubmit();
+      }
+    }
   });
 });
-
 
 /////////////////// Sidebar ////////////////////
 
