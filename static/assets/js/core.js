@@ -441,7 +441,8 @@ paginationOverflows?.forEach((paginationOverflow) => {
   }
 });
 
-/////////////////// Search ////////////////////
+/////////////////// Search Input ////////////////////
+
 document.querySelectorAll('.search-field').forEach(searchField => {
   const input = searchField.querySelector('.search-field-input');
   const clearButton = searchField.querySelector('.search-field-clear');
