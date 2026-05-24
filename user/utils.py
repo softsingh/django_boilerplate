@@ -12,6 +12,65 @@ from PIL import Image
 
 from django.db.models import Q
 
+from common.choices import Gender
+from common.advanced_query import AdvancedQueryService
+
+USER_ADVANCED_QUERY_CONFIG = {
+    "username": {
+        "label": "Username",
+        "orm": "username",
+        "type": "str",
+        "ui_type": "text",
+        "operators": {"eq", "contains", "startswith", "endswith", "in"},
+    },
+    "email": {
+        "label": "Email",
+        "orm": "email",
+        "type": "str",
+        "ui_type": "text",
+        "operators": {"eq", "contains", "startswith", "endswith", "in"},
+    },
+    "full_name": {
+        "label": "Full Name",
+        "orm": "profile__full_name",
+        "type": "str",
+        "ui_type": "text",
+        "operators": {"eq", "contains", "startswith", "endswith", "in"},
+    },
+    "phone_number": {
+        "label": "Phone Number",
+        "orm": "profile__phone_number",
+        "type": "str",
+        "ui_type": "text",
+        "operators": {"eq", "contains", "startswith", "endswith", "in"},
+    },
+    "gender": {
+        "label": "Gender",
+        "orm": "profile__gender",
+        "type": "choice",
+        "ui_type": "choice",
+        "operators": {"eq", "in"},
+        # "choices": {"Male", "Female", "Other"},
+        "choices": {value for value, _ in Gender.choices},
+    },
+    # "date": {
+    #     "label": "Submission Date",
+    #     "orm": "student__thesis_submission_date",
+    #     "type": "date",
+    #     "ui_type": "date",
+    #     "operators": {"eq", "gt", "gte", "lt", "lte", "between"},
+    # },
+    "remarks": {
+        "label": "Remarks",
+        "orm": "profile__remarks",
+        "type": "str",
+        "ui_type": "text",
+        "operators": {"eq", "contains", "startswith", "endswith"},
+    },
+}
+
+user_advanced_query_service = AdvancedQueryService(USER_ADVANCED_QUERY_CONFIG)
+
 
 def send_verification_email(self, user):
     """
@@ -57,28 +116,29 @@ def send_verification_email(self, user):
 
 
 def get_filtered_users(queryset, status="", role="", query=""):
-    """Common filter for user data"""
-
-    filters = Q()
 
     # Status filter
     status_map = {"active": True, "disabled": False}
     if status in status_map:
-        filters &= Q(is_active=status_map[status])
+        queryset = queryset.filter(is_active=status_map[status])
 
     # Role filter
     role_map = {"admin": True, "user": False}
     if role in role_map:
-        filters &= Q(is_superuser=role_map[role])
+        queryset = queryset.filter(is_superuser=role_map[role])
 
-    # Search query
     if query:
-        filters &= (
-            Q(username__icontains=query)
-            | Q(profile__full_name__icontains=query)
-            | Q(email__icontains=query)
-            | Q(profile__phone_number__icontains=query)
-            | Q(profile__remarks__icontains=query)
-        )
+        query = query.strip()
 
-    return queryset.filter(filters)
+        if query.startswith("query:"):
+            queryset = user_advanced_query_service.apply(queryset, query)
+        else:
+            queryset = queryset.filter(
+                Q(username__icontains=query)
+                | Q(profile__full_name__icontains=query)
+                | Q(email__icontains=query)
+                | Q(profile__phone_number__icontains=query)
+                | Q(profile__remarks__icontains=query)
+            ).distinct()
+
+    return queryset

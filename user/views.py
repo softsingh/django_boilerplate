@@ -44,6 +44,8 @@ from .forms import (
     UserGroupAddForm,
 )
 
+from common.choices import Gender
+from common.advanced_query import build_advanced_query_context
 from .models import CustomUser, Profile
 from common.mixins import MyPermissionRequiredMixin
 from . import utils
@@ -390,6 +392,17 @@ class UserListView(
             "Admin": "admin",
             "User": "user",
         }
+        context.update(
+            build_advanced_query_context(
+                config=utils.USER_ADVANCED_QUERY_CONFIG,
+                choice_values={
+                    "gender": [
+                        {"value": value, "label": label}
+                        for value, label in Gender.choices
+                    ]
+                },
+            )
+        )
         return context
 
 

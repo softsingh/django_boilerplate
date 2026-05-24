@@ -120,16 +120,27 @@
             </form>
          </div>
          <div class="col-12 col-sm-6">
-            <form method="get" id="formSearchFormUsers">
-               <div class="search-close-wrapper">
-                  <input type="search"
-                         placeholder="Search from Users"
-                         class="form-control search-input"
-                         name="q"
-                         id="inputSeachFromUsers"
-                         value="{{ request.GET.q|default:'' }}">
-                  <i class="bx bx-x bx-sm search-closer cursor-pointer"
-                     onclick="document.getElementById('inputSeachFromUsers').value=''; document.getElementById('formSearchFormUsers').submit();"></i>
+            <form method="get" id="formSearchFromUsers">
+               <div class="d-flex align-items-center gap-1">
+                  <div class="search-field w-100">
+                     <input type="search"
+                            placeholder="Search from Users"
+                            class="form-control search-field-input"
+                            name="q"
+                            id="id_q"
+                            value="{{ request.GET.q|default:'' }}">
+                     <i class="bx bx-x bx-sm search-field-clear" data-clear-submit="true"></i>
+                  </div>
+                  <button class="btn btn-outline-secondary"
+                          type="button"
+                          data-toggle="modal"
+                          data-target="modalUserAdvancedQuery"
+                          data-aq-open="modalUserAdvancedQuery"
+                          title="Advanced Search">
+                     <div class="d-flex align-items-center">
+                        <i class="bx bx-slider fs-4"></i>
+                     </div>
+                  </button>
                </div>
                <input type="hidden" name="page_size" value="{{ current_page_size }}">
                <input type="hidden"
@@ -214,4 +225,6 @@
       <!-- Pagination -->
       {% include "includes/_pagination.html" with page_obj=page_obj is_paginated=is_paginated current_page_size=current_page_size query_params=request.GET %}
    </div>
+   {% include "common/includes/_advanced_query_modal.html" with modal_id="modalUserAdvancedQuery" modal_title="User Advanced Query" %}
+   {% include "common/includes/_advanced_query_script.html" with modal_id="modalUserAdvancedQuery" query_input_selector="#id_q" aq_filter_options_id="user_advanced_query_filter_options" aq_operator_options_id="user_advanced_query_operator_options" aq_choice_values_id="user_advanced_query_choice_values" %}
 {% endblock content %}

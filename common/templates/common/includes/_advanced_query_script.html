@@ -1,0 +1,386 @@
+{{ advanced_query_filter_options|json_script:aq_filter_options_id }}
+{{ advanced_query_operator_options|json_script:aq_operator_options_id }}
+{{ advanced_query_choice_values|json_script:aq_choice_values_id }}
+<script>
+(function () {
+    const modalId = "{{ modal_id }}";
+    const inputSelector = "{{ query_input_selector|default:'#id_q' }}";
+
+    const filterOptionsEl = document.getElementById("{{ aq_filter_options_id }}");
+    const operatorOptionsEl = document.getElementById("{{ aq_operator_options_id }}");
+    const choiceValuesEl = document.getElementById("{{ aq_choice_values_id }}");
+
+    if (!filterOptionsEl || !operatorOptionsEl || !choiceValuesEl) {
+        return;
+    }
+
+    const filterOptions = JSON.parse(filterOptionsEl.textContent);
+    const operatorOptions = JSON.parse(operatorOptionsEl.textContent);
+    const choiceValues = JSON.parse(choiceValuesEl.textContent);
+
+    const qInput = document.querySelector(inputSelector);
+    const searchForm = qInput ? qInput.closest("form") : null;
+    const modal = document.getElementById(modalId);
+
+    if (!modal) {
+        return;
+    }
+
+    const rowsContainer = document.getElementById(modalId + "_rows");
+    const generatedQueryBox = document.getElementById(modalId + "_generated");
+    const addRowBtn = modal.querySelector(".js-aq-add-row");
+    const clearRowsBtn = modal.querySelector(".js-aq-clear-rows");
+    const applyBtn = modal.querySelector(".js-aq-apply");
+    const openBtn = document.querySelector('[data-aq-open="' + modalId + '"]');
+
+    if (!rowsContainer || !generatedQueryBox || !addRowBtn || !clearRowsBtn || !applyBtn) {
+        return;
+    }
+
+    function escapeHtml(value) {
+        return String(value || "")
+            .replace(/&/g, "&amp;")
+            .replace(/</g , "&lt;") .replace( />/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    }
+
+    function getFieldMeta(fieldValue) {
+        return filterOptions.find(item => item.value === fieldValue) || null;
+    }
+
+    function buildSelectOptions(items, selectedValue) {
+        return items.map(item => {
+            const selected = String(item.value) === String(selectedValue) ? "selected" : "";
+            return `<option value="${escapeHtml(item.value)}" ${selected}>${escapeHtml(item.label)}</option>`;
+        }).join("");
+    }
+
+    function createValueInput(fieldValue, operatorValue, value1 = "", value2 = "") {
+        const fieldMeta = getFieldMeta(fieldValue);
+        const fieldType = fieldMeta ? fieldMeta.type : "text";
+        const isBetween = operatorValue === "between";
+        const isChoice = fieldType === "choice";
+        const isDate = fieldType === "date";
+        const isBoolean = fieldType === "boolean";
+
+        if (isBetween) {
+            const inputType = isDate ? "date" : (fieldType === "number" ? "number" : "text");
+            return `
+                <div class="d-flex align-items-center gap-1">
+                    <input type="${inputType}" class="form-control query-value-1" value="${escapeHtml(value1)}" placeholder="From">
+                    <input type="${inputType}" class="form-control query-value-2" value="${escapeHtml(value2)}" placeholder="To">
+                </div>
+            `;
+        }
+
+        if (isBoolean) {
+            return `
+                <select class="form-select query-value-1">
+                    <option value="">&lt; Select &gt;</option>
+                    <option value="true" ${value1 === "true" ? "selected" : ""}>True</option>
+                    <option value="false" ${value1 === "false" ? "selected" : ""}>False</option>
+                </select>
+            `;
+        }
+
+        if (isChoice && operatorValue === "in") {
+            const options = choiceValues[fieldValue] || [];
+            return `
+                <select class="form-control query-value-1" multiple size="5">
+                    ${buildSelectOptions(options, "")}
+                </select>
+            `;
+        }
+
+        if (isChoice) {
+            const options = [{value: "", label: "< Select >"}].concat(choiceValues[fieldValue] || []);
+            return `
+                <select class="form-select query-value-1">
+                    ${buildSelectOptions(options, value1)}
+                </select>
+            `;
+        }
+
+        const inputType = isDate ? "date" : (fieldType === "number" ? "number" : "text");
+        return `<input type="${inputType}" class="form-control query-value-1" value="${escapeHtml(value1)}">`;
+    }
+
+    function createRow(data = {}) {
+        const fallbackField = filterOptions.length ? filterOptions[0].value : "";
+        const fieldValue = data.field || fallbackField;
+        const fieldMeta = getFieldMeta(fieldValue);
+        const fieldType = fieldMeta ? fieldMeta.type : "text";
+        const operators = operatorOptions[fieldType] || [];
+        const operatorValue = data.operator || (operators.length ? operators[0].value : "eq");
+        const value1 = data.value1 || "";
+        const value2 = data.value2 || "";
+
+        const row = document.createElement("div");
+        row.className = "bordered-container p-3 query-row";
+        row.innerHTML = `
+            <div class="row g-2 align-items-end">
+                <div class="col-md-4">
+                    <label class="form-label mb-1">Field</label>
+                    <select class="form-select query-field">
+                        ${buildSelectOptions(filterOptions, fieldValue)}
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label mb-1">Operator</label>
+                    <select class="form-select query-operator">
+                        ${buildSelectOptions(operators, operatorValue)}
+                    </select>
+                </div>
+                <div class="col-md-4 query-value-container">
+                    <label class="form-label mb-1">Value</label>
+                    ${createValueInput(fieldValue, operatorValue, value1, value2)}
+                </div>
+                <div class="col-md-1">
+                    <button type="button" class="btn btn-danger w-100 query-remove-row">
+                        <div class="d-flex align-items-center justify-content-center">
+                            <i class="bx bx-x fs-4"></i>
+                        </div>
+                    </button>
+                </div>
+            </div>
+        `;
+        bindRowEvents(row);
+        return row;
+    }
+
+    function refreshOperatorOptions(row) {
+        const field = row.querySelector(".query-field").value;
+        const fieldMeta = getFieldMeta(field);
+        const fieldType = fieldMeta ? fieldMeta.type : "text";
+        const operators = operatorOptions[fieldType] || [];
+        const operatorSelect = row.querySelector(".query-operator");
+        const currentOperator = operatorSelect.value;
+
+        operatorSelect.innerHTML = buildSelectOptions(operators, currentOperator);
+
+        const availableValues = operators.map(item => item.value);
+        if (!availableValues.includes(currentOperator) && operators.length) {
+            operatorSelect.value = operators[0].value;
+        }
+    }
+
+    function refreshValueInput(row, keepValues = true) {
+        const field = row.querySelector(".query-field").value;
+        const operator = row.querySelector(".query-operator").value;
+        const valueContainer = row.querySelector(".query-value-container");
+
+        let value1 = "";
+        let value2 = "";
+
+        if (keepValues) {
+            const oldValue1 = row.querySelector(".query-value-1");
+            const oldValue2 = row.querySelector(".query-value-2");
+
+            if (oldValue1) {
+                if (oldValue1.multiple) {
+                    value1 = Array.from(oldValue1.selectedOptions).map(opt => opt.value).join(",");
+                } else {
+                    value1 = oldValue1.value || "";
+                }
+            }
+
+            if (oldValue2) {
+                value2 = oldValue2.value || "";
+            }
+        }
+
+        valueContainer.innerHTML = `
+            <label class="form-label mb-1">Value</label>
+            ${createValueInput(field, operator, value1, value2)}
+        `;
+
+        const multi = row.querySelector(".query-value-1");
+        if (multi && multi.multiple && value1) {
+            const selectedValues = value1.split(",").map(v => v.trim()).filter(Boolean);
+            Array.from(multi.options).forEach(option => {
+                option.selected = selectedValues.includes(option.value);
+            });
+        }
+    }
+
+    function getRowClause(row) {
+        const field = row.querySelector(".query-field").value;
+        const operator = row.querySelector(".query-operator").value;
+        const value1El = row.querySelector(".query-value-1");
+        const value2El = row.querySelector(".query-value-2");
+
+        let value = "";
+
+        if (operator === "between") {
+            const first = value1El ? value1El.value.trim() : "";
+            const second = value2El ? value2El.value.trim() : "";
+            if (!field || !operator || !first || !second) return "";
+            value = `${first},${second}`;
+        } else if (value1El && value1El.multiple) {
+            const selected = Array.from(value1El.selectedOptions).map(opt => opt.value).filter(Boolean);
+            if (!field || !operator || !selected.length) return "";
+            value = selected.join(",");
+        } else {
+            const singleValue = value1El ? value1El.value.trim() : "";
+            if (!field || !operator || !singleValue) return "";
+            value = singleValue;
+        }
+
+        return `${field}:${operator}:${value}`;
+    }
+
+    function updateGeneratedQuery() {
+        const clauses = Array.from(rowsContainer.querySelectorAll(".query-row"))
+            .map(getRowClause)
+            .filter(Boolean);
+
+        generatedQueryBox.value = clauses.length ? `query:${clauses.join(";")}` : "";
+    }
+
+    function bindRowEvents(row) {
+        const fieldSelect = row.querySelector(".query-field");
+        const operatorSelect = row.querySelector(".query-operator");
+        const removeBtn = row.querySelector(".query-remove-row");
+
+        fieldSelect.addEventListener("change", function () {
+            refreshOperatorOptions(row);
+            refreshValueInput(row, false);
+            updateGeneratedQuery();
+        });
+
+        operatorSelect.addEventListener("change", function () {
+            refreshValueInput(row, false);
+            updateGeneratedQuery();
+        });
+
+        row.addEventListener("input", updateGeneratedQuery);
+        row.addEventListener("change", updateGeneratedQuery);
+
+        removeBtn.addEventListener("click", function () {
+            row.remove();
+            updateGeneratedQuery();
+        });
+    }
+
+    function addRow(data = {}) {
+        rowsContainer.appendChild(createRow(data));
+        updateGeneratedQuery();
+    }
+
+    function clearRows() {
+        rowsContainer.innerHTML = "";
+        updateGeneratedQuery();
+    }
+
+    function parseAdvancedQueryString(query) {
+        query = (query || "").trim();
+        if (!query.startsWith("query:")) {
+            return null;
+        }
+
+        const body = query.slice(6).trim();
+        if (!body) {
+            return [];
+        }
+
+        const rawClauses = body.split(";").map(item => item.trim()).filter(Boolean);
+        const result = [];
+
+        for (const rawClause of rawClauses) {
+            const parts = rawClause.split(":");
+            if (parts.length < 3) {
+                return null;
+            }
+
+            const field = parts[0].trim();
+            const operator = parts[1].trim();
+            const rawValue = parts.slice(2).join(":").trim();
+            const fieldMeta = getFieldMeta(field);
+
+            if (!fieldMeta) {
+                return null;
+            }
+
+            const operators = (operatorOptions[fieldMeta.type] || []).map(item => item.value);
+            if (!operators.includes(operator)) {
+                return null;
+            }
+
+            let value1 = "";
+            let value2 = "";
+
+            if (operator === "between") {
+                const items = rawValue.split(",").map(item => item.trim()).filter(Boolean);
+                if (items.length !== 2) {
+                    return null;
+                }
+                value1 = items[0];
+                value2 = items[1];
+            } else {
+                value1 = rawValue;
+            }
+
+            result.push({
+                field: field,
+                operator: operator,
+                value1: value1,
+                value2: value2,
+            });
+        }
+
+        return result;
+    }
+
+    function loadRowsFromQueryInput() {
+        const parsed = parseAdvancedQueryString(qInput ? qInput.value : "");
+        clearRows();
+
+        if (parsed === null || !parsed.length) {
+            addRow();
+            return;
+        }
+
+        parsed.forEach(item => addRow(item));
+    }
+
+    addRowBtn.addEventListener("click", function () {
+        addRow();
+    });
+
+    clearRowsBtn.addEventListener("click", function () {
+        clearRows();
+        addRow();
+    });
+
+    applyBtn.addEventListener("click", function () {
+        if (qInput) {
+            qInput.value = generatedQueryBox.value;
+        }
+
+        const closeBtn = modal.querySelector('[data-dismiss="modal"], .btn-close, .js-modal-close');
+        if (closeBtn) {
+            closeBtn.click();
+        } else {
+            modal.style.display = "none";
+            modal.classList.remove("show");
+        }
+
+        if (searchForm) {
+            setTimeout(function () {
+                searchForm.submit();
+            }, 150);
+        }
+    });
+
+    if (openBtn) {
+        openBtn.addEventListener("click", function () {
+            loadRowsFromQueryInput();
+        });
+    }
+
+    if (!rowsContainer.children.length) {
+        addRow();
+    }
+})();
+</script>
