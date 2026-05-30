@@ -63,13 +63,12 @@
                   {% elif field.field.widget|class_name == "CheckboxSelectMultiple" %}
                      <div class="col-md-6">
                         <label class="form-label mb-2">{{ field.label|title }}</label>
-                        <div class="search-close-wrapper mb-1">
+                        <div class="search-field mb-1">
                            <input type="search"
                                   placeholder="Search from {{ field.label|title }}"
-                                  class="form-control search-input"
+                                  class="form-control search-field-input"
                                   id="seachFrom{{ field.label|title|replace:' ,' }}">
-                           <i class="bx bx-x bx-sm search-closer cursor-pointer"
-                              onclick="onSearchFrom{{ field.label|title|replace:' ,' }}Close()"></i>
+                           <i class="bx bx-x bx-sm search-field-clear"></i>
                         </div>
                         <div class="bordered-container scroll-y"
                              id="{{ field.name }}_checkbox_container"

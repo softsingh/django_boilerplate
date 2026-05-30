@@ -11,6 +11,11 @@
          {% block title %}
          {% endblock title %}
       </title>
+      <script>
+      if (window.innerWidth <= 768) {
+         document.documentElement.classList.add('sidebar-hidden-init');
+      }
+      </script>
       <link rel="stylesheet" href="{% static 'assets/css/core.css' %}">
       <link rel="stylesheet" href="{% static 'assets/css/style.css' %}">
       <link rel="stylesheet"

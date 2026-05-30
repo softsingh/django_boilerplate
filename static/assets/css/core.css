@@ -2870,9 +2870,7 @@ button:not(:disabled),
 .btn-close:disabled,
 .btn-close.disabled {
   pointer-events: none;
-  -webkit-user-select: none;
-     -moz-user-select: none;
-          user-select: none;
+  user-select: none;
   opacity: 0.25;
 }
 
@@ -3325,9 +3323,7 @@ button:not(:disabled),
   cursor: pointer;
   width: 1.2rem;
   height: 1.2rem;
-  -webkit-appearance: none;
-     -moz-appearance: none;
-          appearance: none;
+  appearance: none;
   background-repeat: no-repeat;
   background-position: center;
   border: 2px solid var(--border-color);
@@ -3340,9 +3336,7 @@ button:not(:disabled),
 .form-check-label:disabled,
 .form-check-label.disabled {
   opacity: 0.45;
-  -webkit-user-select: none;
-     -moz-user-select: none;
-          user-select: none;
+  user-select: none;
   pointer-events: none;
 }
 
@@ -3493,29 +3487,13 @@ button:not(:disabled),
   border-color: var(--danger-color);
 }
 
-.form-control::-moz-placeholder {
-  color: color-mix(in oklch, black 10%, var(--border-color));
-  font-weight: 450;
-}
-
 .form-control::placeholder {
   color: color-mix(in oklch, black 10%, var(--border-color));
   font-weight: 450;
 }
 
-.dark-mode .form-control::-moz-placeholder {
-  color: color-mix(in oklch, white 40%, var(--border-color));
-}
-
 .dark-mode .form-control::placeholder {
   color: color-mix(in oklch, white 40%, var(--border-color));
-}
-
-.form-control::-moz-placeholder, .form-control:focus::-moz-placeholder {
-  transition: all 0.2s ease;
-  -moz-transition: all 0.2s ease;
-  -o-transition: all 0.2s ease;
-  -webkit-transition: all 0.2s ease;
 }
 
 .form-control::placeholder,
@@ -3524,13 +3502,6 @@ button:not(:disabled),
   -moz-transition: all 0.2s ease;
   -o-transition: all 0.2s ease;
   -webkit-transition: all 0.2s ease;
-}
-
-.form-control:focus:not([readonly])::-moz-placeholder {
-  transform: translateX(5px);
-  -moz-transform: translateX(5px);
-  -o-transform: translateX(5px);
-  -webkit-transform: translateX(5px);
 }
 
 .form-control:focus:not([readonly])::placeholder {
@@ -3560,9 +3531,7 @@ button:not(:disabled),
 .form-label:disabled,
 .form-label.disabled {
   opacity: 0.45;
-  -webkit-user-select: none;
-     -moz-user-select: none;
-          user-select: none;
+  user-select: none;
   pointer-events: none;
 }
 
@@ -3580,9 +3549,7 @@ button:not(:disabled),
   padding: 0.35rem 0.75rem;
   color: var(--body-color);
   background-color: transparent;
-  -webkit-appearance: none;
-     -moz-appearance: none;
-          appearance: none;
+  appearance: none;
   background-image: url("data:image/svg+xml,<svg viewBox='0 0 12 7.333127' fill='none' version='1.1' id='svg1' width='12' height='7.333127' xmlns='http://www.w3.org/2000/svg' xmlns:svg='http://www.w3.org/2000/svg'><defs id='defs1' /><path d='M 5.9999688,4.6669152 10.666843,0 12,1.3331162 5.9999688,7.3331268 0,1.3331162 1.3331264,0 Z' fill='%2322303e' fill-opacity='0.9' id='path1' style='fill:%233b3b54;fill-opacity:0.45;stroke-width:1.02851' /></svg>");
   background-repeat: no-repeat;
   background-position: right 0.5rem center;
@@ -3644,9 +3611,6 @@ button:not(:disabled),
 }
 
 /* Show clear button */
-.search-field-input:not(:-moz-placeholder) + .search-field-clear {
-  display: block;
-}
 .search-field:hover .search-field-clear,
 .search-field-input:focus + .search-field-clear,
 .search-field-input:not(:placeholder-shown) + .search-field-clear {
@@ -5635,6 +5599,21 @@ button:not(:disabled),
   transition: 0.3s ease;
 }
 
+/* Prevent mobile sidebar flash before JS initializes */
+@media (max-width: 768px) {
+  html.sidebar-hidden-init .sidebar .app-brand {
+    display: none;
+  }
+  html.sidebar-hidden-init .sidebar {
+    width: 0;
+    padding: 0;
+    overflow: hidden;
+  }
+  html.sidebar-hidden-init .sidebar-backdrop {
+    opacity: 0;
+    pointer-events: none;
+  }
+}
 body.sidebar-hidden .sidebar .app-brand {
   display: none;
 }
@@ -13174,15 +13153,11 @@ textarea {
 }
 
 .user-select-all {
-  -webkit-user-select: all;
-     -moz-user-select: all;
-          user-select: all;
+  user-select: all;
 }
 
 .user-select-none {
-  -webkit-user-select: none;
-     -moz-user-select: none;
-          user-select: none;
+  user-select: none;
 }
 
 /*-------------------------------------*/

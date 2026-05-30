@@ -1,7 +1,8 @@
 
-// Hide Sidebar by default on small screens
-if (window.innerWidth <= 768) {
+// Sync initial mobile sidebar state
+if (document.documentElement.classList.contains('sidebar-hidden-init')) {
   document.body.classList.add('sidebar-hidden');
+  document.documentElement.classList.remove('sidebar-hidden-init');
 }
 
 //////////////////// Dropdown ////////////////////
