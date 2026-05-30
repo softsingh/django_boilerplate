@@ -217,6 +217,14 @@ DEFAULT_ADVANCED_QUERY_OPERATOR_OPTIONS = {
 def build_advanced_query_context(config, choice_values=None):
     filter_options = []
     choices = choice_values or {}
+    operator_label_map = {}
+
+    for field_type, operators in DEFAULT_ADVANCED_QUERY_OPERATOR_OPTIONS.items():
+        operator_label_map[field_type] = {
+            item["value"]: item["label"] for item in operators
+        }
+
+    operator_options_by_field = {}
 
     for field_name, meta in config.items():
         field_type = meta.get("ui_type") or meta.get("type", "text")
@@ -235,8 +243,17 @@ def build_advanced_query_context(config, choice_values=None):
             }
         )
 
+        configured_operators = meta.get("operators", [])
+        operator_options_by_field[field_name] = [
+            {
+                "value": operator,
+                "label": operator_label_map.get(field_type, {}).get(operator, operator),
+            }
+            for operator in configured_operators
+        ]
+
     return {
         "advanced_query_filter_options": filter_options,
-        "advanced_query_operator_options": DEFAULT_ADVANCED_QUERY_OPERATOR_OPTIONS,
+        "advanced_query_operator_options": operator_options_by_field,
         "advanced_query_choice_values": choices,
     }

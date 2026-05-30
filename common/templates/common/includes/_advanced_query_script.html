@@ -49,6 +49,15 @@
         return filterOptions.find(item => item.value === fieldValue) || null;
     }
 
+    function getOperatorsForField(fieldName) {
+        return operatorOptions[fieldName] || [];
+    }
+
+    function getDefaultOperatorForField(fieldName) {
+        const operators = getOperatorsForField(fieldName);
+        return operators.length ? operators[0].value : "";
+    }
+
     function buildSelectOptions(items, selectedValue) {
         return items.map(item => {
             const selected = String(item.value) === String(selectedValue) ? "selected" : "";
@@ -109,10 +118,9 @@
     function createRow(data = {}) {
         const fallbackField = filterOptions.length ? filterOptions[0].value : "";
         const fieldValue = data.field || fallbackField;
-        const fieldMeta = getFieldMeta(fieldValue);
-        const fieldType = fieldMeta ? fieldMeta.type : "text";
-        const operators = operatorOptions[fieldType] || [];
-        const operatorValue = data.operator || (operators.length ? operators[0].value : "eq");
+        const operators = getOperatorsForField(fieldValue);
+        const operatorValue = getDefaultOperatorForField(fieldValue);
+
         const value1 = data.value1 || "";
         const value2 = data.value2 || "";
 
@@ -148,23 +156,17 @@
         bindRowEvents(row);
         return row;
     }
-
+    
     function refreshOperatorOptions(row) {
         const field = row.querySelector(".query-field").value;
-        const fieldMeta = getFieldMeta(field);
-        const fieldType = fieldMeta ? fieldMeta.type : "text";
-        const operators = operatorOptions[fieldType] || [];
+        const operators = getOperatorsForField(field);
         const operatorSelect = row.querySelector(".query-operator");
-        const currentOperator = operatorSelect.value;
+        const operatorValue = getDefaultOperatorForField(field);
 
-        operatorSelect.innerHTML = buildSelectOptions(operators, currentOperator);
-
-        const availableValues = operators.map(item => item.value);
-        if (!availableValues.includes(currentOperator) && operators.length) {
-            operatorSelect.value = operators[0].value;
-        }
+        operatorSelect.innerHTML = buildSelectOptions(operators, operatorValue);
+        operatorSelect.value = operatorValue;
     }
-
+    
     function refreshValueInput(row, keepValues = true) {
         const field = row.querySelector(".query-field").value;
         const operator = row.querySelector(".query-operator").value;
@@ -302,7 +304,7 @@
                 return null;
             }
 
-            const operators = (operatorOptions[fieldMeta.type] || []).map(item => item.value);
+            const operators = getOperatorsForField(field).map(item => item.value);
             if (!operators.includes(operator)) {
                 return null;
             }
