@@ -53,9 +53,21 @@ USER_ADVANCED_QUERY_CONFIG = {
         # "choices": {"Male", "Female", "Other"},
         "choices": [value for value, _ in Gender.choices],
     },
+    "admin": {
+        "label": "Admin",
+        "orm": "is_superuser",
+        "type": "bool",
+        "operators": ["eq"],
+    },
+    "active": {
+        "label": "Active",
+        "orm": "is_active",
+        "type": "bool",
+        "operators": ["eq"],
+    },
     # "date": {
-    #     "label": "Submission Date",
-    #     "orm": "student__thesis_submission_date",
+    #     "label": "Some Date",
+    #     "orm": "some_date",
     #     "type": "date",
     #     "ui_type": "date",
     #     "operators": ["eq", "gt", "gte", "lt", "lte", "between"],
