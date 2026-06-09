@@ -83,6 +83,12 @@ USER_ADVANCED_QUERY_CONFIG = {
         "ui_type": "date",
         "operators": {"eq", "gt", "gte", "lt", "lte", "between"},
     },
+    "active": {
+        "label": "Active",
+        "orm": "is_active",
+        "type": "bool",
+        "operators": ["eq"],
+    },
     "remarks": {
         "label": "Remarks",
         "orm": "profile__remarks",
