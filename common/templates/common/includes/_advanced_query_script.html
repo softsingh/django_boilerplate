@@ -119,7 +119,7 @@
         const fallbackField = filterOptions.length ? filterOptions[0].value : "";
         const fieldValue = data.field || fallbackField;
         const operators = getOperatorsForField(fieldValue);
-        const operatorValue = getDefaultOperatorForField(fieldValue);
+        const operatorValue = data.operator || getDefaultOperatorForField(fieldValue);
 
         const value1 = data.value1 || "";
         const value2 = data.value2 || "";
